@@ -1,0 +1,1285 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexus Admin - Vet Logística</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@300;500;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #020617;
+        color: #f8fafc;
+        font-family: "Inter", sans-serif;
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* ================= PANTALLA DE CARGA (LOADER) ================= */
+      #loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #020617;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: opacity 0.8s ease;
+      }
+      .loader-spinner {
+        width: 80px;
+        height: 80px;
+        border: 4px solid rgba(0, 210, 255, 0.1);
+        border-top-color: #00d2ff;
+        border-radius: 50%;
+        animation:
+          spin 1s linear infinite,
+          glow 2s ease-in-out infinite alternate;
+      }
+      .loader-text {
+        margin-top: 20px;
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.2rem;
+        color: #43cea2;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        animation: pulse 1.5s infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes glow {
+        from {
+          box-shadow:
+            0 0 10px #00d2ff,
+            inset 0 0 10px #00d2ff;
+        }
+        to {
+          box-shadow:
+            0 0 30px #43cea2,
+            inset 0 0 20px #43cea2;
+        }
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+
+      /* ================= FONDO ANIMADO CYBERPUNK ================= */
+      .bg-grid {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background-image:
+          linear-gradient(rgba(0, 210, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 210, 255, 0.03) 1px, transparent 1px);
+        background-size: 50px 50px;
+        transform: perspective(1000px) rotateX(60deg);
+        animation: gridMove 15s linear infinite;
+        z-index: 0;
+        pointer-events: none;
+      }
+      .orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        z-index: 0;
+        pointer-events: none;
+        animation: floatOrb 10s ease-in-out infinite alternate;
+      }
+      .orb-1 {
+        width: 300px;
+        height: 300px;
+        background: rgba(67, 206, 162, 0.15);
+        top: -10%;
+        left: -10%;
+      }
+      .orb-2 {
+        width: 400px;
+        height: 400px;
+        background: rgba(0, 210, 255, 0.1);
+        bottom: -20%;
+        right: -10%;
+        animation-delay: -5s;
+      }
+      @keyframes gridMove {
+        0% {
+          transform: perspective(1000px) rotateX(60deg) translateY(0);
+        }
+        100% {
+          transform: perspective(1000px) rotateX(60deg) translateY(50px);
+        }
+      }
+      @keyframes floatOrb {
+        0% {
+          transform: translate(0, 0) scale(1);
+        }
+        100% {
+          transform: translate(50px, 50px) scale(1.2);
+        }
+      }
+
+      /* ================= SIDEBAR & PERFIL ================= */
+      .sidebar {
+        width: 290px;
+        z-index: 10;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(25px);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        display: flex;
+        flex-direction: column;
+        box-shadow: 15px 0 40px rgba(0, 0, 0, 0.6);
+      }
+      .sidebar-header {
+        padding: 30px 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .logo {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        text-align: center;
+        background: linear-gradient(to right, #43cea2, #00d2ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .admin-profile {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 25px 20px;
+        margin-bottom: 10px;
+        background: rgba(255, 255, 255, 0.02);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .admin-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #00d2ff, #185a9d);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 1.2rem;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+      }
+      .admin-info .name {
+        display: block;
+        font-weight: 700;
+        font-size: 0.95rem;
+      }
+      .admin-info .status {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.75rem;
+        color: #43cea2;
+        margin-top: 3px;
+      }
+      .admin-info .status i {
+        font-size: 0.5rem;
+        animation: pulse 2s infinite;
+      }
+
+      .nav-menu {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 15px 20px;
+      }
+      .nav-btn {
+        background: transparent;
+        color: #94a3b8;
+        border: none;
+        padding: 16px 20px;
+        border-radius: 12px;
+        text-align: left;
+        font-size: 0.95rem;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        transition: 0.4s;
+        position: relative;
+        overflow: hidden;
+      }
+      .nav-btn::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 0%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          rgba(0, 210, 255, 0.15),
+          transparent
+        );
+        transition: width 0.4s ease;
+        z-index: -1;
+      }
+      .nav-btn:hover::before,
+      .nav-btn.active::before {
+        width: 100%;
+      }
+      .nav-btn:hover,
+      .nav-btn.active {
+        color: #00d2ff;
+        transform: translateX(10px);
+      }
+      .nav-btn.active {
+        border-left: 3px solid #00d2ff;
+      }
+
+      /* BOTÓN CAMBIAR USUARIO */
+      .btn-switch-user {
+        margin: 20px;
+        padding: 15px;
+        background: rgba(255, 107, 107, 0.05);
+        border: 1px solid rgba(255, 107, 107, 0.2);
+        border-radius: 12px;
+        color: #ff6b6b;
+        font-weight: 700;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        transition: 0.4s;
+        overflow: hidden;
+        position: relative;
+      }
+      .btn-switch-user::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: 0.5s;
+      }
+      .btn-switch-user:hover::before {
+        left: 100%;
+      }
+      .btn-switch-user:hover {
+        background: #ff6b6b;
+        color: white;
+        box-shadow: 0 0 25px rgba(255, 107, 107, 0.5);
+        transform: translateY(-3px);
+      }
+
+      /* ================= CONTENIDO PRINCIPAL ================= */
+      .main-content {
+        flex: 1;
+        padding: 35px 50px;
+        overflow-y: auto;
+        z-index: 10;
+      }
+      .main-content::-webkit-scrollbar {
+        width: 6px;
+      }
+      .main-content::-webkit-scrollbar-thumb {
+        background: rgba(0, 210, 255, 0.5);
+        border-radius: 10px;
+      }
+
+      .tab-content {
+        display: none;
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .tab-content.active {
+        display: block;
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 35px;
+      }
+      h2 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 2rem;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      }
+
+      /* KPIs con Efecto Sweep (Brillo) */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 25px;
+        margin-bottom: 35px;
+      }
+      .kpi-card {
+        background: rgba(15, 23, 42, 0.7);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        transition: 0.4s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .kpi-card::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.1),
+          transparent
+        );
+        transform: skewX(-25deg);
+        transition: 0.6s ease;
+      }
+      .kpi-card:hover::after {
+        left: 200%;
+      }
+      .kpi-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        border-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .kpi-card h4 {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+      }
+      .valor {
+        font-family: "Orbitron", sans-serif;
+        font-size: 2.1rem;
+        font-weight: 700;
+      }
+      .t-ingreso {
+        color: #43cea2;
+        text-shadow: 0 0 20px rgba(67, 206, 162, 0.5);
+      }
+      .t-gasto {
+        color: #ff6b6b;
+        text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+      }
+      .t-deuda {
+        color: #ffd700;
+        text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      }
+      .t-neto {
+        color: #00d2ff;
+        text-shadow: 0 0 20px rgba(0, 210, 255, 0.5);
+      }
+
+      /* Paneles y Formularios */
+      .dashboard-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 25px;
+        margin-bottom: 30px;
+      }
+      .panel-card {
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 30px;
+        border-radius: 24px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        position: relative;
+      }
+
+      .input-group label {
+        display: block;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+      .input-group input,
+      .input-group select {
+        width: 100%;
+        padding: 14px;
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: white;
+        outline: none;
+        transition: 0.3s;
+        margin-bottom: 20px;
+        font-size: 0.95rem;
+      }
+      .input-group input:focus,
+      .input-group select:focus {
+        border-color: #00d2ff;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.3);
+        background: rgba(0, 0, 0, 0.6);
+      }
+
+      .btn-primary {
+        background: linear-gradient(135deg, #00d2ff, #185a9d);
+        color: white;
+        border: none;
+        padding: 14px 25px;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.4s;
+        box-shadow: 0 5px 20px rgba(0, 210, 255, 0.3);
+        width: 100%;
+        font-size: 1rem;
+        letter-spacing: 1px;
+      }
+      .btn-primary:hover {
+        transform: translateY(-3px) scale(1.02);
+        box-shadow: 0 10px 30px rgba(0, 210, 255, 0.6);
+      }
+
+      /* Tablas Animadas */
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+        font-size: 0.95rem;
+      }
+      th {
+        color: #94a3b8;
+        padding: 10px 15px;
+        text-align: left;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1.5px;
+      }
+      tbody tr {
+        background: rgba(255, 255, 255, 0.02);
+        transition: 0.3s;
+        animation: fadeInRow 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      tbody tr:hover {
+        background: rgba(0, 210, 255, 0.05);
+        transform: scale(1.01) translateX(5px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      }
+      td {
+        padding: 16px 15px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      td:first-child {
+        border-left: 1px solid rgba(255, 255, 255, 0.05);
+        border-top-left-radius: 12px;
+        border-bottom-left-radius: 12px;
+      }
+      td:last-child {
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
+        border-top-right-radius: 12px;
+        border-bottom-right-radius: 12px;
+      }
+
+      @keyframes fadeInRow {
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+
+      /* Modales y Toasts idénticos pero estilizados */
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(10px);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+        opacity: 0;
+        transition: 0.4s;
+      }
+      .modal-overlay.active {
+        display: flex;
+        opacity: 1;
+      }
+      .modal-content {
+        background: #0f172a;
+        padding: 35px;
+        border-radius: 24px;
+        width: 450px;
+        border: 1px solid rgba(0, 210, 255, 0.3);
+        box-shadow: 0 20px 60px rgba(0, 210, 255, 0.2);
+        transform: scale(0.8) translateY(30px);
+        transition: 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      }
+      .modal-overlay.active .modal-content {
+        transform: scale(1) translateY(0);
+      }
+
+      #toast-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .toast {
+        background: rgba(15, 23, 42, 0.95);
+        border-left: 5px solid #00d2ff;
+        padding: 18px 25px;
+        border-radius: 12px;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        color: white;
+        animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        font-weight: 500;
+      }
+      @keyframes slideInRight {
+        from {
+          transform: translateX(100px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeOutRight {
+        to {
+          transform: translateX(50px);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Pantalla de Carga Inicial -->
+    <div id="loader-overlay">
+      <div class="loader-spinner"></div>
+      <div class="loader-text">Iniciando Sistema Nexus...</div>
+    </div>
+
+    <!-- Fondo de Partículas Cyber -->
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div id="toast-container"></div>
+
+    <!-- Menú Lateral -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <i class="fa-solid fa-code-branch"></i> NEXUS ADMIN
+        </div>
+      </div>
+
+      <!-- Perfil Animado -->
+      <div class="admin-profile">
+        <div class="admin-avatar">
+          <i class="fa-solid fa-user-astronaut"></i>
+        </div>
+        <div class="admin-info">
+          <span class="name">Comandante Jefe</span>
+          <span class="status"
+            ><i class="fa-solid fa-circle"></i> Sistema En Línea</span
+          >
+        </div>
+      </div>
+
+      <div class="nav-menu">
+        <button class="nav-btn active" onclick="cambiarTab('finanzas')">
+          <i class="fa-solid fa-chart-line"></i> Centro Financiero
+        </button>
+        <button class="nav-btn" onclick="cambiarTab('usuarios')">
+          <i class="fa-solid fa-users-viewfinder"></i> Base de Datos Usuarios
+        </button>
+      </div>
+
+      <!-- BOTÓN DESTACADO: CAMBIAR DE CUENTA -->
+      <button class="btn-switch-user" onclick="volverAlLogin()">
+        <i class="fa-solid fa-arrow-right-arrow-left"></i> Cambiar de Cuenta
+      </button>
+    </div>
+
+    <!-- Contenido Principal -->
+    <div class="main-content">
+      <!-- ================= PESTAÑA FINANZAS ================= -->
+      <div id="tab-finanzas" class="tab-content active">
+        <div class="header-section">
+          <h2>
+            <i class="fa-brands fa-space-awesome" style="color: #00d2ff"></i>
+            Telemetría Financiera
+          </h2>
+          <button
+            class="btn-switch-user"
+            style="
+              margin: 0;
+              padding: 10px 20px;
+              border-color: #43cea2;
+              color: #43cea2;
+              background: rgba(67, 206, 162, 0.1);
+            "
+            onclick="exportarExcel()"
+          >
+            <i class="fa-solid fa-download"></i> Extraer Datos .CSV
+          </button>
+        </div>
+
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <h4 style="color: #43cea2">
+              Entradas <i class="fa-solid fa-plus"></i>
+            </h4>
+            <div class="valor t-ingreso" id="kpi-ingresos">$0</div>
+          </div>
+          <div class="kpi-card">
+            <h4 style="color: #ff6b6b">
+              Salidas <i class="fa-solid fa-minus"></i>
+            </h4>
+            <div class="valor t-gasto" id="kpi-gastos">$0</div>
+          </div>
+          <div class="kpi-card">
+            <h4 style="color: #ffd700">
+              Pasivos <i class="fa-solid fa-triangle-exclamation"></i>
+            </h4>
+            <div class="valor t-deuda" id="kpi-deudas">$0</div>
+          </div>
+          <div class="kpi-card">
+            <h4 style="color: #00d2ff">
+              Liquidez <i class="fa-solid fa-wave-square"></i>
+            </h4>
+            <div class="valor t-neto" id="kpi-neto">$0</div>
+          </div>
+        </div>
+
+        <div class="dashboard-layout">
+          <div class="panel-card">
+            <h3
+              style="
+                color: #94a3b8;
+                font-size: 1rem;
+                margin-bottom: 15px;
+                font-family: &quot;Orbitron&quot;, sans-serif;
+              "
+            >
+              ESTADO DEL CAPITAL
+            </h3>
+            <div style="height: 250px; position: relative">
+              <canvas id="chartDoughnut"></canvas>
+            </div>
+          </div>
+          <div class="panel-card">
+            <h3
+              style="
+                color: #94a3b8;
+                font-size: 1rem;
+                margin-bottom: 15px;
+                font-family: &quot;Orbitron&quot;, sans-serif;
+              "
+            >
+              SIMULACIÓN DE MERCADO
+            </h3>
+            <div style="height: 250px; position: relative">
+              <canvas id="chartLine"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="dashboard-layout"
+          style="grid-template-columns: 1.2fr 1.8fr"
+        >
+          <div class="panel-card">
+            <h3
+              style="
+                color: #00d2ff;
+                margin-bottom: 25px;
+                font-family: &quot;Orbitron&quot;, sans-serif;
+              "
+            >
+              <i class="fa-solid fa-microchip"></i> INYECTAR DATO
+            </h3>
+            <form id="form-contabilidad">
+              <div class="input-group">
+                <label>Clase de Operación</label>
+                <select id="conta-tipo" required>
+                  <option value="Ingreso">Ingreso (Profit)</option>
+                  <option value="Gasto">Gasto (Loss)</option>
+                  <option value="Deuda">Deuda (Debt)</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Monto Procesado (COP)</label
+                ><input
+                  type="number"
+                  id="conta-monto"
+                  placeholder="Ej: 150000"
+                  min="1"
+                  required
+                />
+              </div>
+              <div class="input-group">
+                <label>Vector Categórico</label>
+                <select id="conta-categoria" required>
+                  <option value="Suscripción VIP">Suscripción Sistema</option>
+                  <option value="Reserva Empresarial">
+                    Bóveda de Seguridad
+                  </option>
+                  <option value="Pago Transportador">Nómina Piloto</option>
+                  <option value="Infraestructura IT">
+                    Mantenimiento Servidores
+                  </option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Firma / Concepto</label
+                ><input type="text" id="conta-descripcion" required />
+              </div>
+              <button type="submit" class="btn-primary">
+                Ejecutar Inserción
+              </button>
+            </form>
+          </div>
+
+          <div class="panel-card">
+            <h3
+              style="
+                color: #94a3b8;
+                margin-bottom: 20px;
+                font-family: &quot;Orbitron&quot;, sans-serif;
+              "
+            >
+              REGISTROS DE CADENA (BLOCKCHAIN)
+            </h3>
+            <div
+              style="overflow-y: auto; max-height: 450px; padding-right: 10px"
+            >
+              <table>
+                <thead>
+                  <tr>
+                    <th>Timestamp</th>
+                    <th>Tipo</th>
+                    <th>Concepto</th>
+                    <th>Importe</th>
+                  </tr>
+                </thead>
+                <tbody id="tabla-transacciones"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ================= PESTAÑA USUARIOS ================= -->
+      <div id="tab-usuarios" class="tab-content">
+        <div class="header-section">
+          <h2>
+            <i class="fa-solid fa-satellite-dish" style="color: #43cea2"></i>
+            Red de Usuarios Global
+          </h2>
+          <div style="position: relative; width: 350px">
+            <i
+              class="fa-solid fa-crosshairs"
+              style="position: absolute; left: 15px; top: 15px; color: #43cea2"
+            ></i>
+            <input
+              type="text"
+              id="buscador-usuarios"
+              placeholder="Rastrear identidad..."
+              onkeyup="filtrarUsuarios()"
+              style="
+                width: 100%;
+                padding: 12px 20px 12px 45px;
+                background: rgba(0, 0, 0, 0.5);
+                border: 1px solid #43cea2;
+                border-radius: 12px;
+                color: white;
+                outline: none;
+              "
+            />
+          </div>
+        </div>
+
+        <div class="panel-card">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 25px;
+              align-items: center;
+            "
+          >
+            <h3
+              style="
+                color: #94a3b8;
+                font-family: &quot;Orbitron&quot;, sans-serif;
+              "
+            >
+              Nodos Conectados
+            </h3>
+            <button
+              class="btn-switch-user"
+              onclick="abrirModal('modal-crear')"
+              style="
+                margin: 0;
+                padding: 10px 20px;
+                border-color: #00d2ff;
+                color: #00d2ff;
+                background: rgba(0, 210, 255, 0.1);
+              "
+            >
+              <i class="fa-solid fa-user-ninja"></i> Crear Nuevo Nodo
+            </button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Tag ID</th>
+                <th>Sujeto</th>
+                <th>Protocolo (Email)</th>
+                <th>Autorización</th>
+                <th>Comandos</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-usuarios"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <!-- Fin main-content -->
+
+    <!-- ================= MODALES ================= -->
+    <div class="modal-overlay" id="modal-crear">
+      <div class="modal-content">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+          "
+        >
+          <h3
+            style="
+              color: #00d2ff;
+              font-family: &quot;Orbitron&quot;, sans-serif;
+            "
+          >
+            <i class="fa-solid fa-fingerprint"></i> Forjar Identidad
+          </h3>
+          <i
+            class="fa-solid fa-xmark"
+            style="
+              cursor: pointer;
+              color: #94a3b8;
+              font-size: 1.5rem;
+              transition: 0.3s;
+            "
+            onclick="cerrarModal('modal-crear')"
+            onmouseover="this.style.color = 'white'"
+            onmouseout="this.style.color = '#94a3b8'"
+          ></i>
+        </div>
+        <form id="form-crear-usuario">
+          <div class="input-group">
+            <label>Alias / Nombre</label
+            ><input type="text" id="crear-nombre" required />
+          </div>
+          <div class="input-group">
+            <label>Enlace de Correo</label
+            ><input type="email" id="crear-email" required />
+          </div>
+          <div class="input-group">
+            <label>Clave Encriptada</label
+            ><input type="password" id="crear-password" required />
+          </div>
+          <div class="input-group">
+            <label>Nivel de Clearance</label>
+            <select id="crear-rol" required>
+              <option value="1">Alpha (Admin Global)</option>
+              <option value="2">Beta (Cliente VIP)</option>
+              <option value="3">Gamma (Piloto Transporte)</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-primary">Inicializar Sujeto</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Script de Lógica Principal -->
+    <script>
+      // Desvanecer el loader inicial
+      window.onload = () => {
+        setTimeout(() => {
+          document.getElementById("loader-overlay").style.opacity = "0";
+          setTimeout(
+            () =>
+              (document.getElementById("loader-overlay").style.display =
+                "none"),
+            800,
+          );
+        }, 1500);
+      };
+
+      // Seguridad (Redirigir si no es admin)
+      const rolUsuario = localStorage.getItem("rol_usuario_actual");
+      if (!rolUsuario || rolUsuario != 1) window.location.href = "auth.html";
+
+      let dataTransacciones = [];
+      let chartDoughnut, chartLine;
+
+      function mostrarToast(msj, tipo = "exito") {
+        const caja = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = "toast";
+        const c = tipo === "exito" ? "#00d2ff" : "#ff6b6b";
+        toast.style.borderLeftColor = c;
+        const icon =
+          tipo === "exito" ? "fa-check-double" : "fa-skull-crossbones";
+        toast.innerHTML = `<i class="fa-solid ${icon}" style="color:${c}; font-size:1.3rem;"></i> <span>${msj}</span>`;
+        caja.appendChild(toast);
+        setTimeout(() => {
+          toast.style.animation = "fadeOutRight 0.4s forwards";
+          setTimeout(() => toast.remove(), 400);
+        }, 3500);
+      }
+
+      const formatearCOP = (v) =>
+        new Intl.NumberFormat("es-CO", {
+          style: "currency",
+          currency: "COP",
+          maximumFractionDigits: 0,
+        }).format(v);
+
+      function cambiarTab(tab) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .querySelectorAll(".nav-btn")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById(`tab-${tab}`).classList.add("active");
+        event.currentTarget.classList.add("active");
+        if (tab === "finanzas") cargarFinanzas();
+        if (tab === "usuarios") cargarUsuarios();
+      }
+
+      function animarOdometro(id, target) {
+        const el = document.getElementById(id);
+        let actual = 0;
+        let inc = target / 30;
+        if (target === 0) {
+          el.innerText = formatearCOP(0);
+          return;
+        }
+        let timer = setInterval(() => {
+          actual += inc;
+          if (actual >= Math.abs(target)) {
+            clearInterval(timer);
+            el.innerText = formatearCOP(target);
+          } else {
+            el.innerText = formatearCOP(target < 0 ? -actual : actual);
+          }
+        }, 30);
+      }
+
+      // Cerrar Sesión y Volver al Login
+      function volverAlLogin() {
+        if (
+          confirm(
+            "¿Estás seguro de que deseas cerrar sesión y volver a la pantalla de acceso?",
+          )
+        ) {
+          localStorage.removeItem("id_usuario_actual");
+          localStorage.removeItem("rol_usuario_actual");
+          window.location.href = "auth.html";
+        }
+      }
+
+      // Exportar CSV
+      function exportarExcel() {
+        if (dataTransacciones.length === 0)
+          return mostrarToast("Base de datos vacía", "error");
+        let csv = "ID_Bloque,Fecha,Tipo,Vector,Detalle,Monto(COP)\n";
+        dataTransacciones.forEach(
+          (t) =>
+            (csv += `${t.id_transaccion},${new Date(t.fecha).toLocaleString("es-CO")},${t.tipo},${t.categoria},"${t.descripcion}",${t.monto}\n`),
+        );
+        const a = document.createElement("a");
+        a.href = window.URL.createObjectURL(
+          new Blob([csv], { type: "text/csv" }),
+        );
+        a.download = "Data_Financiera_Nexus.csv";
+        a.click();
+        mostrarToast("Extracción completada");
+      }
+
+      function filtrarUsuarios() {
+        const texto = document
+          .getElementById("buscador-usuarios")
+          .value.toLowerCase();
+        document
+          .querySelectorAll("#tabla-usuarios tr")
+          .forEach(
+            (f) =>
+              (f.style.display = f.innerText.toLowerCase().includes(texto)
+                ? ""
+                : "none"),
+          );
+      }
+
+      function abrirModal(id) {
+        document.getElementById(id).classList.add("active");
+      }
+      function cerrarModal(id) {
+        document.getElementById(id).classList.remove("active");
+      }
+
+      // Cargar Finanzas
+      async function cargarFinanzas() {
+        try {
+          const res = await fetch("http://localhost:3000/admin/contabilidad");
+          const data = await res.json();
+          dataTransacciones = data.transacciones;
+
+          animarOdometro("kpi-ingresos", data.resumen.ingresos);
+          animarOdometro("kpi-gastos", data.resumen.gastos);
+          animarOdometro("kpi-deudas", data.resumen.deudas);
+          animarOdometro("kpi-neto", data.resumen.rentabilidad);
+
+          const tbody = document.getElementById("tabla-transacciones");
+          tbody.innerHTML = "";
+          dataTransacciones.forEach((t, i) => {
+            const f = new Date(t.fecha).toLocaleDateString("es-CO", {
+              month: "short",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            let color =
+              t.tipo === "Ingreso"
+                ? "#43cea2"
+                : t.tipo === "Gasto"
+                  ? "#ff6b6b"
+                  : "#ffd700";
+            // Stagger animation delay
+            tbody.innerHTML += `
+              <tr style="animation-delay: ${i * 0.05}s">
+                <td style="color:#94a3b8; font-family:monospace;">${f}</td>
+                <td><span style="border: 1px solid ${color}; color:${color}; padding:4px 10px; border-radius:8px; font-size:0.75rem; font-weight:700;">${t.tipo}</span></td>
+                <td>${t.categoria} <br><small style="color:#64748b;">${t.descripcion}</small></td>
+                <td style="color:white; font-weight:bold; font-family:'Orbitron',sans-serif;">${formatearCOP(t.monto)}</td>
+              </tr>`;
+          });
+
+          Chart.defaults.color = "#94a3b8";
+          Chart.defaults.font.family = "Inter";
+          if (chartDoughnut) chartDoughnut.destroy();
+          chartDoughnut = new Chart(document.getElementById("chartDoughnut"), {
+            type: "doughnut",
+            data: {
+              labels: ["Profit", "Loss", "Debt"],
+              datasets: [
+                {
+                  data: [
+                    data.resumen.ingresos,
+                    data.resumen.gastos,
+                    data.resumen.deudas,
+                  ],
+                  backgroundColor: ["#43cea2", "#ff6b6b", "#ffd700"],
+                  borderWidth: 0,
+                  hoverOffset: 10,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              cutout: "75%",
+              plugins: { legend: { position: "right" } },
+            },
+          });
+
+          if (chartLine) chartLine.destroy();
+          const ctxLine = document.getElementById("chartLine").getContext("2d");
+          let gradient = ctxLine.createLinearGradient(0, 0, 0, 250);
+          gradient.addColorStop(0, "rgba(0, 210, 255, 0.4)");
+          gradient.addColorStop(1, "rgba(0, 210, 255, 0)");
+          chartLine = new Chart(ctxLine, {
+            type: "line",
+            data: {
+              labels: ["T-4", "T-3", "T-2", "T-1", "Actual"],
+              datasets: [
+                {
+                  label: "Liquidez",
+                  data: [
+                    120000,
+                    180000,
+                    150000,
+                    250000,
+                    data.resumen.rentabilidad || 300000,
+                  ],
+                  borderColor: "#00d2ff",
+                  backgroundColor: gradient,
+                  fill: true,
+                  tension: 0.4,
+                  pointBackgroundColor: "#fff",
+                  pointBorderColor: "#00d2ff",
+                  pointRadius: 5,
+                  pointHoverRadius: 8,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: { display: false },
+                x: { grid: { color: "rgba(255,255,255,0.05)" } },
+              },
+              plugins: { legend: { display: false } },
+            },
+          });
+        } catch (e) {
+          mostrarToast("Caída de conexión con el Servidor", "error");
+        }
+      }
+
+      document
+        .getElementById("form-contabilidad")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const body = {
+            tipo: document.getElementById("conta-tipo").value,
+            categoria: document.getElementById("conta-categoria").value,
+            monto: document.getElementById("conta-monto").value,
+            descripcion: document.getElementById("conta-descripcion").value,
+          };
+          await fetch("http://localhost:3000/admin/contabilidad", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+          mostrarToast("Bloque encriptado y guardado");
+          document.getElementById("form-contabilidad").reset();
+          cargarFinanzas();
+        });
+
+      // Cargar Usuarios
+      async function cargarUsuarios() {
+        const res = await fetch("http://localhost:3000/admin/usuarios");
+        const usuarios = await res.json();
+        const tbody = document.getElementById("tabla-usuarios");
+        tbody.innerHTML = "";
+        usuarios.forEach((u, i) => {
+          let c =
+            u.id_rol == 1 ? "#ff6b6b" : u.id_rol == 3 ? "#ffd700" : "#00d2ff";
+          tbody.innerHTML += `
+            <tr style="animation-delay: ${i * 0.05}s">
+              <td style="color:#64748b; font-family:'Orbitron',sans-serif;">[NX-${u.id_usuario}]</td>
+              <td style="font-weight:700; color:white;">${u.nombre}</td>
+              <td style="color:#94a3b8;">${u.email}</td>
+              <td><span style="color:${c}; border:1px solid ${c}; padding:6px 12px; border-radius:12px; font-size:0.75rem; background:rgba(0,0,0,0.4); box-shadow: 0 0 10px ${c}40;">${u.nombre_rol || `Lv. ${u.id_rol}`}</span></td>
+              <td>
+                <i class="fa-solid fa-trash-can" style="color:#ff6b6b; cursor:pointer; font-size:1.1rem; transition:0.3s;" onclick="eliminarUsuario(${u.id_usuario})" onmouseover="this.style.textShadow='0 0 10px #ff6b6b'" onmouseout="this.style.textShadow='none'" title="Eliminar"></i>
+              </td>
+            </tr>`;
+        });
+      }
+
+      document
+        .getElementById("form-crear-usuario")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const body = {
+            nombre: document.getElementById("crear-nombre").value,
+            email: document.getElementById("crear-email").value,
+            password: document.getElementById("crear-password").value,
+            id_rol: document.getElementById("crear-rol").value,
+          };
+          const res = await fetch("http://localhost:3000/admin/usuarios", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          });
+          if (res.ok) {
+            mostrarToast("Identidad sincronizada");
+            cerrarModal("modal-crear");
+            document.getElementById("form-crear-usuario").reset();
+            cargarUsuarios();
+          } else {
+            mostrarToast("Colisión: Credencial duplicada", "error");
+          }
+        });
+
+      async function eliminarUsuario(id) {
+        if (
+          confirm(
+            "ADVERTENCIA CRÍTICA: La eliminación de este sujeto es irreversible. ¿Proceder?",
+          )
+        ) {
+          await fetch(`http://localhost:3000/admin/usuarios/${id}`, {
+            method: "DELETE",
+          });
+          mostrarToast("Sujeto eliminado de la matriz");
+          cargarUsuarios();
+        }
+      }
+
+      cargarFinanzas();
+    </script>
+  </body>
+</html>

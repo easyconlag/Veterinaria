@@ -1,0 +1,810 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexus Cyber Access - Vet Logística VIP</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        background-color: #030712;
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+        position: relative;
+        perspective: 1200px;
+      }
+
+      /* ESFERAS DE LUZ AURORA BOREAL DE FONDO */
+      .ambient-orb {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(100px);
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.5;
+        animation: floatOrb 10s ease-in-out infinite alternate;
+      }
+      .orb-1 {
+        width: 500px;
+        height: 500px;
+        background: #43cea2;
+        top: -120px;
+        left: -120px;
+      }
+      .orb-2 {
+        width: 550px;
+        height: 550px;
+        background: #00d2ff;
+        bottom: -150px;
+        right: -120px;
+        animation-delay: -3s;
+      }
+      .orb-3 {
+        width: 400px;
+        height: 400px;
+        background: #a855f7;
+        top: 30%;
+        left: 50%;
+        animation-delay: -6s;
+        opacity: 0.35;
+      }
+
+      @keyframes floatOrb {
+        0% {
+          transform: translateY(0) scale(1) rotate(0deg);
+        }
+        100% {
+          transform: translateY(60px) scale(1.2) rotate(15deg);
+        }
+      }
+
+      /* LUZ DE CURSOR INTERACTIVA (SPOTLIGHT) */
+      #cursor-light {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 500px;
+        height: 500px;
+        background: radial-gradient(
+          circle,
+          rgba(67, 206, 162, 0.2) 0%,
+          rgba(0, 210, 255, 0.08) 40%,
+          transparent 70%
+        );
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+        transition:
+          width 0.3s,
+          height 0.3s;
+      }
+
+      /* LIENZOS DE ANIMACIÓN DE FONDO */
+      #particles-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        pointer-events: none;
+      }
+
+      /* ONDA EXPANSIVA DE CLIC (RIPPLE) */
+      .click-ripple {
+        position: fixed;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #43cea2;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+        z-index: 9998;
+        animation: rippleExpand 0.6s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+      }
+      @keyframes rippleExpand {
+        0% {
+          width: 0px;
+          height: 0px;
+          opacity: 1;
+          box-shadow: 0 0 25px #43cea2;
+        }
+        100% {
+          width: 300px;
+          height: 300px;
+          opacity: 0;
+          box-shadow: 0 0 60px #00d2ff;
+        }
+      }
+
+      /* HEADER GLASSMORPHISM SUPREMO */
+      header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 22px 70px;
+        background: rgba(3, 7, 18, 0.82);
+        backdrop-filter: blur(25px);
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+      }
+      .logo {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.7rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: linear-gradient(
+          135deg,
+          #43cea2 0%,
+          #00d2ff 50%,
+          #a855f7 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 6s infinite linear;
+        background-size: 200% auto;
+      }
+      .btn-volver {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+        padding: 10px 24px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "Orbitron", sans-serif;
+        font-size: 0.85rem;
+      }
+      .btn-volver:hover {
+        background: rgba(67, 206, 162, 0.2);
+        border-color: #43cea2;
+        box-shadow: 0 0 20px rgba(67, 206, 162, 0.5);
+        transform: translateY(-2px);
+      }
+
+      /* CONTENEDOR 3D HOLOGRÁFICO */
+      .auth-wrapper {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding-top: 100px;
+        position: relative;
+        z-index: 10;
+      }
+      .container {
+        width: 480px;
+        background: rgba(15, 23, 42, 0.88);
+        border: 1px solid rgba(67, 206, 162, 0.4);
+        padding: 45px;
+        border-radius: 30px;
+        backdrop-filter: blur(30px);
+        box-shadow:
+          0 30px 70px rgba(0, 0, 0, 0.9),
+          0 0 50px rgba(67, 206, 162, 0.2);
+        transform-style: preserve-3d;
+        transition:
+          transform 0.1s ease-out,
+          box-shadow 0.3s ease;
+        animation: popUpCard 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      @keyframes popUpCard {
+        from {
+          transform: scale(0.8) translateY(50px) rotateX(15deg);
+          opacity: 0;
+        }
+        to {
+          transform: scale(1) translateY(0) rotateX(0deg);
+          opacity: 1;
+        }
+      }
+
+      h2 {
+        color: #f8fafc;
+        margin-bottom: 25px;
+        text-align: center;
+        font-size: 1.8rem;
+        font-family: "Orbitron", sans-serif;
+        font-weight: 900;
+        letter-spacing: 0.5px;
+        text-shadow: 0 0 15px rgba(67, 206, 162, 0.4);
+      }
+
+      .input-group {
+        margin-bottom: 20px;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 14px 16px;
+        background: rgba(2, 6, 23, 0.75);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 14px;
+        color: white;
+        outline: none;
+        font-size: 0.95rem;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .input-group input:focus {
+        border-color: #43cea2;
+        background: rgba(2, 6, 23, 0.95);
+        box-shadow: 0 0 25px rgba(67, 206, 162, 0.4);
+      }
+
+      .btn-primary {
+        width: 100%;
+        padding: 16px;
+        background: linear-gradient(
+          135deg,
+          #43cea2 0%,
+          #00d2ff 50%,
+          #185a9d 100%
+        );
+        background-size: 200% auto;
+        color: white;
+        border: none;
+        border-radius: 14px;
+        font-size: 1rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        box-shadow: 0 5px 25px rgba(67, 206, 162, 0.5);
+        margin-top: 10px;
+        font-family: "Orbitron", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+      .btn-primary:hover {
+        transform: translateY(-4px) scale(1.02);
+        background-position: right center;
+        box-shadow: 0 12px 40px rgba(67, 206, 162, 0.8);
+      }
+
+      .toggle-text {
+        text-align: center;
+        margin-top: 18px;
+        font-size: 0.9rem;
+        color: #94a3b8;
+      }
+      .toggle-text span {
+        color: #43cea2;
+        cursor: pointer;
+        font-weight: 700;
+        transition: 0.3s;
+      }
+      .toggle-text span:hover {
+        color: #00d2ff;
+        text-shadow: 0 0 12px rgba(0, 210, 255, 0.8);
+        text-decoration: underline;
+      }
+      .hidden {
+        display: none;
+      }
+
+      /* TOAST NOTIFICACIONES SUPREMAS */
+      #toast-container {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .toast {
+        background: rgba(15, 23, 42, 0.95);
+        border-left: 5px solid #43cea2;
+        color: #fff;
+        padding: 16px 22px;
+        border-radius: 12px;
+        backdrop-filter: blur(20px);
+        box-shadow:
+          0 20px 40px rgba(0, 0, 0, 0.8),
+          0 0 25px rgba(67, 206, 162, 0.3);
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: slideInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        min-width: 320px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .toast.error {
+        border-left-color: #ff6b6b;
+        box-shadow:
+          0 20px 40px rgba(0, 0, 0, 0.8),
+          0 0 25px rgba(255, 107, 107, 0.3);
+      }
+      .toast.error i {
+        color: #ff6b6b;
+      }
+      .toast i {
+        color: #43cea2;
+        font-size: 1.2rem;
+      }
+
+      @keyframes slideInUp {
+        from {
+          transform: translateY(100px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeOutDown {
+        from {
+          transform: translateY(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateY(50px);
+          opacity: 0;
+        }
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Esferas de luz ambiental de fondo -->
+    <div class="ambient-orb orb-1"></div>
+    <div class="ambient-orb orb-2"></div>
+    <div class="ambient-orb orb-3"></div>
+
+    <!-- Luz de cursor interactiva -->
+    <div id="cursor-light"></div>
+    <canvas id="particles-canvas"></canvas>
+
+    <div id="toast-container"></div>
+
+    <header>
+      <div class="logo"><i class="fa-solid fa-paw"></i> Vet Logística VIP</div>
+      <a href="index.html" class="btn-volver"
+        ><i class="fa-solid fa-arrow-left"></i> Volver al Inicio</a
+      >
+    </header>
+
+    <div class="auth-wrapper">
+      <div class="container" id="auth-card">
+        <!-- Login Form -->
+        <div class="form-container" id="login-form">
+          <h2>Iniciar Sesión</h2>
+          <form id="form-login">
+            <div class="input-group">
+              <label>Correo Electrónico</label>
+              <input
+                type="email"
+                id="login-email"
+                placeholder="socio@vetlogistica.com"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label>Contraseña</label>
+              <input
+                type="password"
+                id="login-password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            <button type="submit" class="btn-primary">
+              <i class="fa-solid fa-right-to-bracket"></i> Entrar al Sistema
+            </button>
+          </form>
+          <p class="toggle-text">
+            ¿Olvidaste tu contraseña?
+            <span onclick="cambiarVista('recuperar')">Recuperar aquí</span>
+          </p>
+          <p class="toggle-text">
+            ¿No tienes cuenta?
+            <span onclick="cambiarVista('registro')">Regístrate aquí</span>
+          </p>
+        </div>
+
+        <!-- Register Form -->
+        <div class="form-container hidden" id="register-form">
+          <h2>Crear Cuenta & Membresía</h2>
+          <form id="form-register">
+            <div class="input-group">
+              <label>Nombre Completo</label>
+              <input
+                type="text"
+                id="reg-nombre"
+                placeholder="Tu Nombre"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label>Correo Electrónico</label>
+              <input
+                type="email"
+                id="reg-email"
+                placeholder="correo@dominio.com"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label>Contraseña</label>
+              <input
+                type="password"
+                id="reg-password"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+            <button type="submit" class="btn-primary">
+              <i class="fa-solid fa-user-plus"></i> Registrarse y Pagar
+              Membresía
+            </button>
+          </form>
+          <p class="toggle-text">
+            ¿Ya tienes cuenta?
+            <span onclick="cambiarVista('login')">Inicia Sesión</span>
+          </p>
+        </div>
+
+        <!-- Recuperar Contraseña Form -->
+        <div class="form-container hidden" id="recuperar-form">
+          <h2>Recuperar Acceso</h2>
+          <form id="form-recuperar">
+            <div class="input-group">
+              <label>Tu Correo Electrónico Registrado</label>
+              <input
+                type="email"
+                id="rec-email"
+                required
+                placeholder="correo@vet.com"
+              />
+            </div>
+            <div class="input-group">
+              <label>Nueva Contraseña</label>
+              <input
+                type="password"
+                id="rec-password"
+                required
+                placeholder="Nueva contraseña segura"
+              />
+            </div>
+            <button type="submit" class="btn-primary">
+              <i class="fa-solid fa-key"></i> Actualizar Credencial
+            </button>
+          </form>
+          <p class="toggle-text">
+            ¿Recordaste tu clave?
+            <span onclick="cambiarVista('login')">Inicia Sesión</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts con interactividad, efectos de fondo y animaciones fluidas -->
+    <script>
+      // 1. Efecto de Luz Ambiental del Cursor y Onda de Clic
+      const cursorLight = document.getElementById("cursor-light");
+      window.addEventListener("mousemove", (e) => {
+        cursorLight.style.left = e.clientX + "px";
+        cursorLight.style.top = e.clientY + "px";
+      });
+
+      window.addEventListener("click", (e) => {
+        const ripple = document.createElement("div");
+        ripple.className = "click-ripple";
+        ripple.style.left = e.clientX + "px";
+        ripple.style.top = e.clientY + "px";
+        document.body.appendChild(ripple);
+        setTimeout(() => ripple.remove(), 600);
+      });
+
+      // 2. Efecto Giroscópico 3D en la Tarjeta
+      const authCard = document.getElementById("auth-card");
+      document.addEventListener("mousemove", (e) => {
+        const xAxis = (window.innerWidth / 2 - e.clientX) / 30;
+        const yAxis = (window.innerHeight / 2 - e.clientY) / 30;
+        authCard.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+      });
+      document.addEventListener("mouseleave", () => {
+        authCard.style.transform = `rotateY(0deg) rotateX(0deg)`;
+      });
+
+      // 3. Sistema de Notificaciones Toast
+      function mostrarToast(mensaje, tipo = "exito") {
+        const container = document.getElementById("toast-container");
+        const toast = document.createElement("div");
+        toast.className = `toast ${tipo}`;
+        const icono =
+          tipo === "exito" ? "fa-circle-check" : "fa-triangle-exclamation";
+        toast.innerHTML = `<i class="fa-solid ${icono}"></i> <span>${mensaje}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.animation = "fadeOutDown 0.4s ease forwards";
+          setTimeout(() => toast.remove(), 400);
+        }, 3500);
+      }
+
+      // 4. Cambio de Vistas Animado
+      function cambiarVista(vista) {
+        document.getElementById("login-form").classList.add("hidden");
+        document.getElementById("register-form").classList.add("hidden");
+        document.getElementById("recuperar-form").classList.add("hidden");
+        if (vista === "login")
+          document.getElementById("login-form").classList.remove("hidden");
+        if (vista === "registro")
+          document.getElementById("register-form").classList.remove("hidden");
+        if (vista === "recuperar")
+          document.getElementById("recuperar-form").classList.remove("hidden");
+      }
+
+      // 5. Lógica de Inicio de Sesión
+      document
+        .getElementById("form-login")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("login-email").value;
+          const password = document.getElementById("login-password").value;
+
+          try {
+            const res = await fetch("http://localhost:3000/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ email, password }),
+            });
+            const data = await res.json();
+
+            if (res.ok) {
+              if (data.requiere_pago) {
+                localStorage.setItem("id_usuario_actual", data.id_usuario);
+                mostrarToast(data.mensaje, "error");
+                setTimeout(() => {
+                  window.location.href = "pago.html";
+                }, 1200);
+                return;
+              }
+
+              localStorage.setItem(
+                "id_usuario_actual",
+                data.usuario.id_usuario,
+              );
+              const rolUsuario = Number(
+                data.usuario.id_rol !== undefined
+                  ? data.usuario.id_rol
+                  : data.usuario.rol,
+              );
+              localStorage.setItem("rol_usuario_actual", rolUsuario);
+
+              mostrarToast("¡Acceso concedido! Redirigiendo...", "exito");
+              setTimeout(() => {
+                if (rolUsuario === 1) window.location.href = "admin.html";
+                else if (rolUsuario === 3)
+                  window.location.href = "transportador.html";
+                else window.location.href = "mapa.html";
+              }, 1200);
+            } else {
+              mostrarToast(
+                data.mensaje || "Credenciales incorrectas.",
+                "error",
+              );
+            }
+          } catch (err) {
+            mostrarToast("Error de conexión con el servidor backend.", "error");
+          }
+        });
+
+      // 6. Lógica de Registro
+      document
+        .getElementById("form-register")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const nombre = document.getElementById("reg-nombre").value;
+          const email = document.getElementById("reg-email").value;
+          const password = document.getElementById("reg-password").value;
+
+          try {
+            const res = await fetch("http://localhost:3000/registro", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ nombre, email, password }),
+            });
+            const data = await res.json();
+            if (res.ok) {
+              localStorage.setItem("id_usuario_actual", data.id_usuario);
+              mostrarToast(
+                "¡Registro exitoso! Redirigiendo al portal de pagos...",
+                "exito",
+              );
+              setTimeout(() => {
+                window.location.href = "pago.html";
+              }, 1500);
+            } else {
+              mostrarToast(data.mensaje, "error");
+            }
+          } catch (err) {
+            mostrarToast("Error conectando con el servidor.", "error");
+          }
+        });
+
+      // 7. Lógica de Recuperación de Contraseña
+      document
+        .getElementById("form-recuperar")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("rec-email").value;
+          const nuevaPassword = document.getElementById("rec-password").value;
+
+          try {
+            const res = await fetch(
+              "http://localhost:3000/recuperar-password",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, nuevaPassword }),
+              },
+            );
+            const data = await res.json();
+            if (res.ok) {
+              mostrarToast(data.mensaje, "exito");
+              document.getElementById("form-recuperar").reset();
+              setTimeout(() => cambiarVista("login"), 1500);
+            } else {
+              mostrarToast(data.mensaje, "error");
+            }
+          } catch (err) {
+            mostrarToast(
+              "Error al conectar con el servidor de recuperación.",
+              "error",
+            );
+          }
+        });
+
+      // 8. Motor de Canvas Avanzado: Partículas + Rayos de Datos Cibernéticos Cruzando el Fondo
+      const canvas = document.getElementById("particles-canvas");
+      const ctx = canvas.getContext("2d");
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+
+      const particles = [];
+      const count = 70;
+
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 2.2 + 1,
+          color: Math.random() > 0.5 ? "#43cea2" : "#00d2ff",
+          speedX: (Math.random() - 0.5) * 0.6,
+          speedY: (Math.random() - 0.5) * 0.6,
+        });
+      }
+
+      // Rayos de datos/estrellas fugaces cruzando el fondo
+      const shootingLines = [];
+      for (let i = 0; i < 8; i++) {
+        shootingLines.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          length: Math.random() * 120 + 80,
+          speed: Math.random() * 3 + 2,
+          angle: Math.PI / 4, // Diagonal
+          opacity: Math.random() * 0.5 + 0.2,
+        });
+      }
+
+      let mouseX = -1000;
+      let mouseY = -1000;
+      window.addEventListener("mousemove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+      function animateBackground() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Renderizar y animar líneas fugaces cruzando el fondo
+        ctx.lineWidth = 1.5;
+        shootingLines.forEach((line) => {
+          ctx.strokeStyle = `rgba(67, 206, 162, ${line.opacity})`;
+          ctx.beginPath();
+          ctx.moveTo(line.x, line.y);
+          ctx.lineTo(
+            line.x - Math.cos(line.angle) * line.length,
+            line.y - Math.sin(line.angle) * line.length,
+          );
+          ctx.stroke();
+
+          line.x += line.speed;
+          line.y += line.speed;
+
+          if (line.x > canvas.width + 100 || line.y > canvas.height + 100) {
+            line.x = Math.random() * -200;
+            line.y = Math.random() * canvas.height;
+          }
+        });
+
+        // Renderizar partículas y conexiones
+        for (let i = 0; i < particles.length; i++) {
+          let p = particles[i];
+          p.x += p.speedX;
+          p.y += p.speedY;
+
+          if (p.x < 0) p.x = canvas.width;
+          if (p.x > canvas.width) p.x = 0;
+          if (p.y < 0) p.y = canvas.height;
+          if (p.y > canvas.height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+
+          let distX = mouseX - p.x;
+          let distY = mouseY - p.y;
+          let dist = Math.sqrt(distX * distX + distY * distY);
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(mouseX, mouseY);
+            ctx.strokeStyle = `rgba(67, 206, 162, ${1 - dist / 150})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+        requestAnimationFrame(animateBackground);
+      }
+      animateBackground();
+    </script>
+  </body>
+</html>

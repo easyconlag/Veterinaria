@@ -1,0 +1,1505 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vet Logística VIP - Movilidad Inteligente para Mascotas</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+
+      body {
+        background-color: #030712;
+        color: white;
+        overflow-x: hidden;
+        position: relative;
+      }
+
+      /* LUZ DE CURSOR INTERACTIVA (SPOTLIGHT) */
+      #cursor-light {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 450px;
+        height: 450px;
+        background: radial-gradient(
+          circle,
+          rgba(67, 206, 162, 0.15) 0%,
+          rgba(0, 210, 255, 0.06) 40%,
+          transparent 70%
+        );
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+        transition:
+          width 0.3s,
+          height 0.3s;
+      }
+
+      #particles-canvas {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      /* BARRA SUPERIOR TICKER EN VIVO */
+      .live-ticker {
+        background: linear-gradient(90deg, #185a9d, #43cea2, #00d2ff);
+        background-size: 200% auto;
+        animation: shimmer 5s infinite linear;
+        color: #030712;
+        font-family: "Orbitron", sans-serif;
+        font-size: 0.75rem;
+        font-weight: 900;
+        padding: 8px 0;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        overflow: hidden;
+        white-space: nowrap;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 1100;
+        box-shadow: 0 0 25px rgba(67, 206, 162, 0.7);
+      }
+      .ticker-content {
+        display: inline-block;
+        animation: tickerMove 30s linear infinite;
+      }
+      @keyframes tickerMove {
+        0% {
+          transform: translateX(100%);
+        }
+        100% {
+          transform: translateX(-100%);
+        }
+      }
+
+      /* HEADER GLASSMORPHISM SUPREMO */
+      header {
+        position: fixed;
+        top: 35px;
+        left: 0;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 18px 70px;
+        background: rgba(3, 7, 18, 0.88);
+        backdrop-filter: blur(25px);
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6);
+      }
+
+      .logo {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.6rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: linear-gradient(
+          135deg,
+          #43cea2 0%,
+          #00d2ff 50%,
+          #a855f7 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 6s infinite linear;
+        background-size: 200% auto;
+      }
+
+      .btn-login {
+        background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 700;
+        box-shadow: 0 0 25px rgba(67, 206, 162, 0.4);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        font-family: "Orbitron", sans-serif;
+        font-size: 0.85rem;
+      }
+
+      .btn-login:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: 0 0 35px rgba(67, 206, 162, 0.8);
+      }
+
+      /* HERO SECTION */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 80px;
+        position: relative;
+        z-index: 1;
+        margin-top: 80px;
+      }
+
+      .hero-content {
+        max-width: 650px;
+        animation: fadeInLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(67, 206, 162, 0.12);
+        color: #43cea2;
+        padding: 8px 18px;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-bottom: 25px;
+        border: 1px solid rgba(67, 206, 162, 0.4);
+        box-shadow: 0 0 20px rgba(67, 206, 162, 0.15);
+        animation: pulseBadge 2.5s infinite ease-in-out;
+        font-family: "Orbitron", sans-serif;
+      }
+
+      .hero-content h1 {
+        font-size: 4.2rem;
+        line-height: 1.08;
+        margin-bottom: 25px;
+        font-weight: 900;
+        letter-spacing: -1.5px;
+      }
+
+      .hero-content h1 span {
+        background: linear-gradient(
+          135deg,
+          #43cea2 0%,
+          #00d2ff 50%,
+          #a855f7 100%
+        );
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 5s infinite linear;
+        background-size: 200% auto;
+      }
+
+      .hero-content p {
+        font-size: 1.25rem;
+        color: #94a3b8;
+        margin-bottom: 40px;
+        line-height: 1.6;
+      }
+
+      .btn-cta {
+        background: linear-gradient(
+          135deg,
+          #ff6b6b 0%,
+          #ee5253 50%,
+          #ff9f43 100%
+        );
+        color: white;
+        padding: 18px 45px;
+        border-radius: 40px;
+        text-decoration: none;
+        font-size: 1.1rem;
+        font-weight: 800;
+        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.5);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: inline-block;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        font-family: "Orbitron", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .btn-cta:hover {
+        transform: translateY(-6px) scale(1.04);
+        box-shadow: 0 20px 45px rgba(255, 107, 107, 0.8);
+      }
+
+      /* HERO IMAGES & RADAR HOLOGRÁFICO */
+      .hero-images {
+        position: relative;
+        width: 550px;
+        height: 550px;
+        animation: fadeInRight 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+        perspective: 1000px;
+      }
+
+      .floating-img {
+        position: absolute;
+        border-radius: 28px;
+        object-fit: cover;
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8);
+        border: 3px solid rgba(255, 255, 255, 0.15);
+        transition:
+          transform 0.2s ease-out,
+          border-color 0.4s;
+      }
+
+      .img-1 {
+        width: 320px;
+        height: 400px;
+        top: 10px;
+        left: 20px;
+        transform: rotate(-5deg);
+        animation: float1 6s ease-in-out infinite alternate;
+      }
+      .img-2 {
+        width: 250px;
+        height: 250px;
+        bottom: 15px;
+        right: 15px;
+        transform: rotate(7deg);
+        animation: float2 5s ease-in-out infinite alternate;
+      }
+      .img-3 {
+        width: 160px;
+        height: 160px;
+        top: 150px;
+        right: -20px;
+        transform: rotate(-10deg);
+        animation: float3 4.5s ease-in-out infinite alternate;
+      }
+
+      /* WIDGET DE RADAR TÁCTICO FLOTANTE */
+      .radar-widget {
+        position: absolute;
+        bottom: 50px;
+        left: -40px;
+        background: rgba(3, 7, 18, 0.9);
+        border: 1px solid rgba(67, 206, 162, 0.6);
+        padding: 15px 20px;
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 0 30px rgba(67, 206, 162, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        z-index: 10;
+        animation: float1 4s ease-in-out infinite alternate;
+      }
+      .radar-pulse {
+        width: 15px;
+        height: 15px;
+        background: #43cea2;
+        border-radius: 50%;
+        box-shadow: 0 0 0 rgba(67, 206, 162, 0.8);
+        animation: radarPing 2s infinite;
+      }
+      @keyframes radarPing {
+        0% {
+          box-shadow: 0 0 0 0 rgba(67, 206, 162, 0.8);
+        }
+        70% {
+          box-shadow: 0 0 0 15px rgba(67, 206, 162, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(67, 206, 162, 0);
+        }
+      }
+
+      /* SECCIÓN DE TELEMETRÍA Y EKG (MONITOR CARDÍACO) */
+      .telemetry-section {
+        padding: 80px;
+        background: rgba(15, 23, 42, 0.8);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        position: relative;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .telemetry-info h3 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 2rem;
+        color: #43cea2;
+        margin-bottom: 10px;
+      }
+      .telemetry-info p {
+        color: #94a3b8;
+        font-size: 1.1rem;
+        max-width: 500px;
+      }
+
+      .ekg-container {
+        width: 500px;
+        height: 120px;
+        background: #030712;
+        border: 1px solid rgba(67, 206, 162, 0.4);
+        border-radius: 18px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 0 25px rgba(67, 206, 162, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      #ekg-canvas {
+        width: 100%;
+        height: 100%;
+      }
+
+      /* BARRA DE ESTADÍSTICAS EN VIVO */
+      .stats-banner {
+        display: flex;
+        justify-content: space-around;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(20px);
+        padding: 40px 80px;
+        position: relative;
+        z-index: 2;
+      }
+      .stat-item {
+        text-align: center;
+      }
+      .stat-item h3 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 2.8rem;
+        color: #43cea2;
+        margin-bottom: 5px;
+        text-shadow: 0 0 15px rgba(67, 206, 162, 0.4);
+      }
+      .stat-item p {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* CALCULADORA INTERACTIVA DE AHORRO VIP */
+      .calculator-section {
+        padding: 100px 80px;
+        background: radial-gradient(
+          circle at center,
+          rgba(13, 27, 51, 0.8) 0%,
+          #030712 100%
+        );
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+      .calculator-section h2 {
+        font-size: 2.8rem;
+        margin-bottom: 15px;
+        font-family: "Orbitron", sans-serif;
+      }
+      .calculator-card {
+        max-width: 700px;
+        margin: 40px auto 0;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(0, 210, 255, 0.3);
+        padding: 40px;
+        border-radius: 28px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+        text-align: left;
+      }
+      .calc-group {
+        margin-bottom: 25px;
+      }
+      .calc-group label {
+        display: block;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        margin-bottom: 10px;
+        font-family: "Orbitron", sans-serif;
+      }
+      .calc-group input[type="range"] {
+        width: 100%;
+        accent-color: #43cea2;
+        cursor: pointer;
+        height: 8px;
+        border-radius: 4px;
+        background: #020617;
+      }
+      .calc-results {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(67, 206, 162, 0.08);
+        border: 1px solid #43cea2;
+        padding: 20px;
+        border-radius: 16px;
+        margin-top: 20px;
+      }
+      .calc-results h4 {
+        color: #43cea2;
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.5rem;
+      }
+
+      /* SECCIÓN DE PLANES VIP (PRICING) */
+      .pricing-section {
+        padding: 120px 80px;
+        background: #030712;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+      .pricing-section h2 {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        font-weight: 800;
+        font-family: "Orbitron", sans-serif;
+      }
+      .pricing-section p.subtitle {
+        color: #94a3b8;
+        margin-bottom: 60px;
+        font-size: 1.2rem;
+      }
+
+      .pricing-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 40px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .pricing-card {
+        background: rgba(17, 24, 39, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 50px 40px;
+        border-radius: 30px;
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(20px);
+        transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .pricing-card.featured {
+        border-color: #43cea2;
+        background: linear-gradient(
+          135deg,
+          rgba(67, 206, 162, 0.08),
+          rgba(17, 24, 39, 0.85)
+        );
+        box-shadow: 0 0 40px rgba(67, 206, 162, 0.2);
+      }
+
+      .pricing-card:hover {
+        transform: translateY(-10px);
+      }
+      .pricing-card h3 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+      }
+      .pricing-card .price {
+        font-size: 2.5rem;
+        font-family: "Orbitron", sans-serif;
+        color: #43cea2;
+        margin-bottom: 25px;
+      }
+      .pricing-card ul {
+        list-style: none;
+        margin-bottom: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .pricing-card ul li {
+        color: #94a3b8;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .pricing-card ul li i {
+        color: #43cea2;
+      }
+
+      /* CHATBOT INTELIGENTE CON VOZ */
+      .chatbot-section {
+        padding: 120px 80px;
+        background: linear-gradient(180deg, #030712 0%, #0d1b33 100%);
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .chatbot-section h2 {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        font-weight: 800;
+        font-family: "Orbitron", sans-serif;
+      }
+      .chatbot-section p.subtitle {
+        color: #94a3b8;
+        margin-bottom: 50px;
+        font-size: 1.2rem;
+      }
+
+      .chatbot-container {
+        max-width: 850px;
+        margin: 0 auto;
+        background: rgba(17, 24, 39, 0.85);
+        border: 1px solid rgba(67, 206, 162, 0.4);
+        border-radius: 28px;
+        overflow: hidden;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(20px);
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        height: 540px;
+      }
+
+      .chat-header {
+        background: rgba(3, 7, 18, 0.95);
+        padding: 20px 30px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+      .chat-title-area {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .chat-header i {
+        font-size: 1.8rem;
+        color: #43cea2;
+      }
+      .chat-header h3 {
+        font-size: 1.2rem;
+        color: #fff;
+        font-family: "Orbitron", sans-serif;
+      }
+      .chat-header span {
+        font-size: 0.85rem;
+        color: #43cea2;
+      }
+
+      .btn-voice {
+        background: rgba(67, 206, 162, 0.15);
+        border: 1px solid #43cea2;
+        color: #43cea2;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+      }
+      .btn-voice:hover {
+        background: #43cea2;
+        color: #030712;
+        box-shadow: 0 0 15px rgba(67, 206, 162, 0.6);
+      }
+
+      .chat-messages {
+        flex: 1;
+        padding: 25px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .message {
+        max-width: 75%;
+        padding: 14px 18px;
+        border-radius: 18px;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        animation: fadeInStagger 0.3s ease-out;
+      }
+
+      .message.bot {
+        background: rgba(30, 41, 59, 0.9);
+        color: #f8fafc;
+        align-self: flex-start;
+        border-bottom-left-radius: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .message.user {
+        background: linear-gradient(135deg, #43cea2, #185a9d);
+        color: white;
+        align-self: flex-end;
+        border-bottom-right-radius: 4px;
+      }
+
+      .chat-options {
+        padding: 20px 25px;
+        background: rgba(3, 7, 18, 0.95);
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        max-height: 150px;
+        overflow-y: auto;
+      }
+
+      .faq-chip {
+        background: rgba(67, 206, 162, 0.1);
+        color: #43cea2;
+        border: 1px solid rgba(67, 206, 162, 0.3);
+        padding: 8px 15px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+      }
+
+      .faq-chip:hover {
+        background: #43cea2;
+        color: #030712;
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px rgba(67, 206, 162, 0.5);
+      }
+
+      /* CARACTERÍSTICAS */
+      .features-section {
+        padding: 120px 80px;
+        background: #030712;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+
+      .features-section h2 {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        font-weight: 800;
+        font-family: "Orbitron", sans-serif;
+      }
+      .features-section p.subtitle {
+        color: #94a3b8;
+        margin-bottom: 80px;
+        font-size: 1.2rem;
+      }
+
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 40px;
+      }
+
+      .feature-box {
+        background: rgba(17, 24, 39, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 50px 35px;
+        border-radius: 28px;
+        transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(15px);
+      }
+
+      .feature-box:hover {
+        transform: translateY(-12px) scale(1.02);
+        background: rgba(17, 24, 39, 0.9);
+        border-color: rgba(67, 206, 162, 0.6);
+        box-shadow:
+          0 25px 50px rgba(0, 0, 0, 0.7),
+          0 0 35px rgba(67, 206, 162, 0.3);
+      }
+
+      .feature-icon {
+        font-size: 3rem;
+        color: #43cea2;
+        margin-bottom: 25px;
+        display: inline-block;
+        filter: drop-shadow(0 0 10px rgba(67, 206, 162, 0.5));
+      }
+
+      .feature-box h3 {
+        font-size: 1.6rem;
+        margin-bottom: 15px;
+        color: #f8fafc;
+        font-weight: 700;
+        font-family: "Orbitron", sans-serif;
+      }
+      .feature-box p {
+        color: #94a3b8;
+        font-size: 1.05rem;
+        line-height: 1.7;
+      }
+
+      /* GALERÍA */
+      .gallery-section {
+        padding: 80px 80px 140px;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+      }
+      .gallery-section h2 {
+        font-size: 2.5rem;
+        margin-bottom: 50px;
+        font-weight: 800;
+        font-family: "Orbitron", sans-serif;
+      }
+      .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+      }
+      .gallery-item {
+        height: 220px;
+        border-radius: 20px;
+        overflow: hidden;
+        border: 2px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      }
+      .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.6s ease;
+      }
+      .gallery-item:hover img {
+        transform: scale(1.15) rotate(2deg);
+      }
+
+      footer {
+        padding: 50px 80px;
+        text-align: center;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        color: #64748b;
+        font-size: 1rem;
+        background: #030712;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ANIMACIONES */
+      @keyframes slideDown {
+        from {
+          transform: translateY(-100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeInLeft {
+        from {
+          transform: translateX(-60px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeInRight {
+        from {
+          transform: translateX(60px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes fadeInStagger {
+        from {
+          transform: translateY(10px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+      @keyframes float1 {
+        0% {
+          transform: translateY(0) rotate(-5deg);
+        }
+        100% {
+          transform: translateY(-20px) rotate(-2deg);
+        }
+      }
+      @keyframes float2 {
+        0% {
+          transform: translateY(0) rotate(7deg);
+        }
+        100% {
+          transform: translateY(-25px) rotate(4deg);
+        }
+      }
+      @keyframes float3 {
+        0% {
+          transform: translateY(0) rotate(-10deg);
+        }
+        100% {
+          transform: translateY(-15px) rotate(-6deg);
+        }
+      }
+      @keyframes pulseBadge {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.04);
+        }
+      }
+      @keyframes shimmer {
+        0% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+        100% {
+          background-position: 0% 50%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Luz de cursor interactiva -->
+    <div id="cursor-light"></div>
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Ticker de Emergencias en Vivo -->
+    <div class="live-ticker">
+      <div class="ticker-content">
+        🚨 [RED PLANETARIA ACTIVA] Facatativá, Cundinamarca • Telemetría
+        Satelital Conectada • Red de Clínicas 24/7 Operando sin demoras •
+        ¡Membresías Elite Disponibles con Cero Costo en Urgencias! •
+      </div>
+    </div>
+
+    <!-- Navbar -->
+    <header>
+      <div class="logo"><i class="fa-solid fa-paw"></i> Vet Logística VIP</div>
+      <div class="header-actions">
+        <a href="auth.html" class="btn-login"
+          ><i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión</a
+        >
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-content">
+        <span class="badge"
+          ><i class="fa-solid fa-crown"></i> Ecosistema Logístico Elite
+          Global</span
+        >
+        <h1>El transporte inteligente para <span>tu mascota</span></h1>
+        <p>
+          Conectamos tu ubicación exacta en tiempo real con las mejores
+          veterinarias de la red y pilotos profesionales dedicados al confort,
+          seguridad y soporte vital de tus animales.
+        </p>
+        <a href="auth.html" class="btn-cta"
+          >Empezar Ahora <i class="fa-solid fa-rocket"></i
+        ></a>
+      </div>
+      <div class="hero-images" id="hero-tilt-container">
+        <img
+          src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80"
+          alt="Perro feliz"
+          class="floating-img img-1"
+        />
+        <img
+          src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=500&q=80"
+          alt="Gato curioso"
+          class="floating-img img-2"
+        />
+        <img
+          src="https://images.unsplash.com/photo-1537151608828-ea2b11777ee8?auto=format&fit=crop&w=400&q=80"
+          alt="Perrito tierno"
+          class="floating-img img-3"
+        />
+
+        <!-- Widget de Radar Táctico en Vivo -->
+        <div class="radar-widget">
+          <div class="radar-pulse"></div>
+          <div>
+            <div
+              style="
+                font-family: &quot;Orbitron&quot;;
+                font-size: 0.8rem;
+                color: #43cea2;
+              "
+            >
+              RADAR SATELITAL ACTIVO
+            </div>
+            <div style="font-size: 0.75rem; color: #94a3b8">
+              Unidades operando en zona
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN DE TELEMETRÍA Y EKG (MONITOR CARDÍACO EN VIVO) -->
+    <section class="telemetry-section">
+      <div class="telemetry-info">
+        <h3>Telemetría Médica EKG en Vivo</h3>
+        <p>
+          Cada traslado cuenta con monitoreo cardíaco y satelital constante para
+          garantizar la estabilidad absoluta de tu mascota durante el trayecto.
+        </p>
+      </div>
+      <div class="ekg-container">
+        <canvas id="ekg-canvas"></canvas>
+      </div>
+    </section>
+
+    <!-- Barra de Estadísticas Dinámicas -->
+    <section class="stats-banner">
+      <div class="stat-item">
+        <h3 id="counter-1">0</h3>
+        <p>Trayectos Exitosos</p>
+      </div>
+      <div class="stat-item">
+        <h3>100%</h3>
+        <p>Cobertura VIP</p>
+      </div>
+      <div class="stat-item">
+        <h3>24/7</h3>
+        <p>Monitoreo Activo</p>
+      </div>
+      <div class="stat-item">
+        <h3>0 min</h3>
+        <p>Espera de Urgencia</p>
+      </div>
+    </section>
+
+    <!-- CALCULADORA INTERACTIVA DE AHORRO VIP -->
+    <section class="calculator-section">
+      <h2>Simula Tu Ahorro Anual con VIP</h2>
+      <p style="color: #94a3b8; font-size: 1.1rem; margin-top: 5px">
+        Mueve la barra según los viajes estimados al año y descubre cuánto
+        ahorras frente a tarifas convencionales.
+      </p>
+
+      <div class="calculator-card">
+        <div class="calc-group">
+          <label
+            >Traslados Veterinarios Estimados al Año:
+            <span
+              id="viajes-val"
+              style="color: #43cea2; font-family: &quot;Orbitron&quot;"
+              >6</span
+            >
+            viajes</label
+          >
+          <input
+            type="range"
+            id="slider-viajes"
+            min="1"
+            max="24"
+            value="6"
+            oninput="actualizarCalculadora()"
+          />
+        </div>
+        <div class="calc-results">
+          <div>
+            <span
+              style="
+                color: #94a3b8;
+                font-size: 0.85rem;
+                text-transform: uppercase;
+              "
+              >Ahorro Total Estimado</span
+            >
+            <p style="font-size: 0.8rem; color: #94a3b8">
+              Gracias a la cobertura 100% de la Membresía Elite
+            </p>
+          </div>
+          <h4 id="resultado-ahorro">$510.000 COP</h4>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN DE PLANES Y MEMBRESÍAS VIP -->
+    <section class="pricing-section">
+      <h2>Membresías Exclusivas de Élite</h2>
+      <p class="subtitle">
+        Acceso total e ilimitado al centro de comando y telemetría veterinaria.
+      </p>
+
+      <div class="pricing-grid">
+        <div class="pricing-card">
+          <h3>Socio Estándar</h3>
+          <div class="price">
+            $29.900 <span style="font-size: 1rem; color: #94a3b8">/ mes</span>
+          </div>
+          <ul>
+            <li>
+              <i class="fa-solid fa-check"></i> Acceso al Mapa Táctico en Vivo
+            </li>
+            <li>
+              <i class="fa-solid fa-check"></i> Solicitud de Unidades de
+              Transporte
+            </li>
+            <li>
+              <i class="fa-solid fa-check"></i> Soporte y Chat con Pilotos
+            </li>
+          </ul>
+          <a
+            href="auth.html"
+            class="btn-cta"
+            style="padding: 12px 25px; font-size: 0.9rem"
+            >Elegir Estándar</a
+          >
+        </div>
+        <div class="pricing-card featured">
+          <span
+            style="
+              background: #43cea2;
+              color: #030712;
+              padding: 4px 12px;
+              border-radius: 10px;
+              font-size: 0.75rem;
+              font-weight: bold;
+              font-family: &quot;Orbitron&quot;;
+            "
+            >MÁS POPULAR</span
+          >
+          <h3 style="margin-top: 10px">Socio Elite VIP</h3>
+          <div class="price">
+            $59.900 <span style="font-size: 1rem; color: #94a3b8">/ mes</span>
+          </div>
+          <ul>
+            <li>
+              <i class="fa-solid fa-check"></i> <strong>Cero Costo</strong> en
+              Traslados de Urgencia ($0)
+            </li>
+            <li>
+              <i class="fa-solid fa-check"></i> Prioridad Absoluta 0-Espera en
+              Red
+            </li>
+            <li>
+              <i class="fa-solid fa-check"></i> Telemetría y EKG de Signos
+              Vitales
+            </li>
+            <li>
+              <i class="fa-solid fa-check"></i> Protocolos Médicos SOS
+              ilimitados
+            </li>
+          </ul>
+          <a
+            href="auth.html"
+            class="btn-cta"
+            style="padding: 12px 25px; font-size: 0.9rem"
+            >Obtener Credencial Elite</a
+          >
+        </div>
+      </div>
+    </section>
+
+    <!-- Asistente Virtual con Reconocimiento de Voz -->
+    <section class="chatbot-section">
+      <h2>¿Tienes dudas? Pregúntale a nuestro Asistente</h2>
+      <p class="subtitle">
+        Selecciona una pregunta frecuente o haz clic en el botón de voz para
+        hablar con VetBot.
+      </p>
+
+      <div class="chatbot-container">
+        <div class="chat-header">
+          <div class="chat-title-area">
+            <i class="fa-solid fa-robot"></i>
+            <div>
+              <h3>Asistente VetBot VIP</h3>
+              <span>● En línea para ayudarte</span>
+            </div>
+          </div>
+          <button class="btn-voice" onclick="activarReconocimientoVoz()">
+            <i class="fa-solid fa-microphone"></i> Hablar con IA
+          </button>
+        </div>
+
+        <div class="chat-messages" id="chat-messages">
+          <div class="message bot">
+            ¡Hola! Soy VetBot, tu asistente inteligente. ¿En qué puedo ayudarte
+            hoy? Puedes hacer clic en las opciones abajo o usar el botón de voz.
+          </div>
+        </div>
+
+        <div class="chat-options" id="chat-options">
+          <div class="faq-chip" onclick="responderPregunta('como_funciona')">
+            ¿Cómo funciona el servicio?
+          </div>
+          <div class="faq-chip" onclick="responderPregunta('costos')">
+            ¿Tiene algún costo por trayecto?
+          </div>
+          <div class="faq-chip" onclick="responderPregunta('seguridad')">
+            ¿Cómo garantizan la seguridad?
+          </div>
+          <div class="faq-chip" onclick="responderPregunta('registro')">
+            ¿Cómo me registro como transportador?
+          </div>
+          <div class="faq-chip" onclick="responderPregunta('mascotas_grandes')">
+            ¿Transportan mascotas grandes?
+          </div>
+          <div class="faq-chip" onclick="responderPregunta('horarios')">
+            ¿Cuáles son los horarios de atención?
+          </div>
+          <div class="faq-chip" onclick="responderPregunta('cancelar')">
+            ¿Puedo cancelar un viaje solicitado?
+          </div>
+          <div class="faq-chip" onclick="responderPregunta('pago')">
+            ¿Qué métodos de pago aceptan?
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Características -->
+    <section class="features-section">
+      <h2>Tecnología y Confianza Elite</h2>
+      <p class="subtitle">
+        Diseñado con herramientas de última generación para garantizar la mejor
+        experiencia.
+      </p>
+
+      <div class="features-grid">
+        <div class="feature-box">
+          <div class="feature-icon">
+            <i class="fa-solid fa-location-dot"></i>
+          </div>
+          <h3>Geolocalización en Vivo</h3>
+          <p>
+            Navega a través de mapas interactivos que determinan tu posición y
+            calculan el trayecto directo hacia la veterinaria real más cercana.
+          </p>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon"><i class="fa-solid fa-car-side"></i></div>
+          <h3>Transporte Especializado</h3>
+          <p>
+            Conductores expertos listos en su panel de control para gestionar
+            traslados seguros, rápidos y adaptados a las necesidades de tu
+            peludo.
+          </p>
+        </div>
+        <div class="feature-box">
+          <div class="feature-icon">
+            <i class="fa-solid fa-bolt-lightning"></i>
+          </div>
+          <h3>Suscripción Sin Límites</h3>
+          <p>
+            Membresía premium integral que incluye todas las herramientas de
+            logística y solicitudes ilimitadas bajo una interfaz totalmente
+            optimizada.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Galería Extra -->
+    <section class="gallery-section">
+      <h2>Amor y Cuidado en Cada Viaje</h2>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img
+            src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=500&q=80"
+            alt="Perro 1"
+          />
+        </div>
+        <div class="gallery-item">
+          <img
+            src="https://images.unsplash.com/photo-1573865526739-10659fec78a5?auto=format&fit=crop&w=500&q=80"
+            alt="Gato 1"
+          />
+        </div>
+        <div class="gallery-item">
+          <img
+            src="https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&w=500&q=80"
+            alt="Perro 2"
+          />
+        </div>
+        <div class="gallery-item">
+          <img
+            src="https://images.unsplash.com/photo-1561948955-570b270e7c36?auto=format&fit=crop&w=500&q=80"
+            alt="Gato 2"
+          />
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2026 Vet Logística VIP - Todos los derechos reservados.</p>
+    </footer>
+
+    <!-- Scripts de Interactividad y Animaciones Planetarias -->
+    <script>
+      // 1. Efecto de Luz Ambiental del Cursor (Spotlight)
+      const cursorLight = document.getElementById("cursor-light");
+      window.addEventListener("mousemove", (e) => {
+        cursorLight.style.left = e.clientX + "px";
+        cursorLight.style.top = e.clientY + "px";
+      });
+
+      // 2. Monitor EKG Animado en Canvas
+      const ekgCanvas = document.getElementById("ekg-canvas");
+      const ekgCtx = ekgCanvas.getContext("2d");
+      ekgCanvas.width = 500;
+      ekgCanvas.height = 120;
+      let ekgX = 0;
+      let ekgY = 60;
+      let ekgPoints = [];
+
+      function drawEKG() {
+        ekgCtx.clearRect(0, 0, ekgCanvas.width, ekgCanvas.height);
+        ekgCtx.strokeStyle = "#43cea2";
+        ekgCtx.lineWidth = 2.5;
+        ekgCtx.shadowBlur = 10;
+        ekgCtx.shadowColor = "#43cea2";
+
+        ekgCtx.beginPath();
+        ekgCtx.moveTo(0, 60);
+
+        let pattern = [60, 60, 40, 90, 10, 110, 30, 60, 60, 60];
+        let step = 5;
+
+        for (let i = 0; i < ekgCanvas.width; i += step) {
+          let y = 60;
+          let mod = (i + ekgX) % 150;
+          if (mod > 60 && mod < 70) y = 20;
+          else if (mod >= 70 && mod < 80) y = 100;
+          else if (mod >= 80 && mod < 90) y = 40;
+
+          if (i === 0) ekgCtx.moveTo(i, y);
+          else ekgCtx.lineTo(i, y);
+        }
+        ekgCtx.stroke();
+        ekgX += 2;
+        requestAnimationFrame(drawEKG);
+      }
+      drawEKG();
+
+      // 3. Reconocimiento de Voz para el Asistente
+      function activarReconocimientoVoz() {
+        if (
+          !("webkitSpeechRecognition" in window) &&
+          !("SpeechRecognition" in window)
+        ) {
+          alert("Tu navegador no soporta el reconocimiento de voz por IA.");
+          return;
+        }
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        recognition.lang = "es-CO";
+        recognition.start();
+
+        alert(
+          "🎙️ VetBot escuchando... Di algo como 'costos' o 'cómo funciona'.",
+        );
+
+        recognition.onresult = function (event) {
+          let texto = event.results[0][0].transcript.toLowerCase();
+          if (texto.includes("funciona")) responderPregunta("como_funciona");
+          else if (texto.includes("costo") || texto.includes("precio"))
+            responderPregunta("costos");
+          else if (texto.includes("seguridad")) responderPregunta("seguridad");
+          else if (texto.includes("horario")) responderPregunta("horarios");
+          else {
+            alert(
+              "Escuché: '" +
+                texto +
+                "'. Prueba seleccionando una opción frecuente.",
+            );
+          }
+        };
+      }
+
+      // 4. Calculadora Interactiva de Ahorro
+      function actualizarCalculadora() {
+        const viajes = document.getElementById("slider-viajes").value;
+        document.getElementById("viajes-val").innerText = viajes;
+        let costoRegular = viajes * 85000;
+        document.getElementById("resultado-ahorro").innerText =
+          "$" + Math.round(costoRegular * 0.75).toLocaleString() + " COP";
+      }
+
+      // 5. Contador Animado en Estadísticas
+      function animateCounter(id, target) {
+        let current = 0;
+        let increment = Math.ceil(target / 50);
+        let el = document.getElementById(id);
+        let timer = setInterval(() => {
+          current += increment;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          el.innerText = current.toLocaleString() + "+";
+        }, 30);
+      }
+      animateCounter("counter-1", 1450);
+
+      // 6. Efecto Tilt 3D en Imágenes del Hero
+      const heroImages = document.getElementById("hero-tilt-container");
+      heroImages.addEventListener("mousemove", (e) => {
+        const rect = heroImages.getBoundingClientRect();
+        const x = e.clientX - rect.left - rect.width / 2;
+        const y = e.clientY - rect.top - rect.height / 2;
+        const imgs = heroImages.querySelectorAll(".floating-img");
+        imgs.forEach((img, idx) => {
+          let factor = (idx + 1) * 0.05;
+          img.style.transform = `translate(${x * factor}px, ${y * factor}px) rotate(${idx * 5 - 5}deg)`;
+        });
+      });
+      heroImages.addEventListener("mouseleave", () => {
+        const imgs = heroImages.querySelectorAll(".floating-img");
+        imgs[0].style.transform = "rotate(-5deg)";
+        imgs[1].style.transform = "rotate(7deg)";
+        imgs[2].style.transform = "rotate(-10deg)";
+      });
+
+      // 7. Base de Datos de Preguntas Frecuentes del Chatbot
+      const respuestasFAQ = {
+        como_funciona:
+          "Funciona conectando tu ubicación GPS con la base de datos de clínicas veterinarias asociadas y conductores profesionales. Como socio VIP, puedes solicitar un transporte seleccionado con prioridad absoluta.",
+        costos:
+          "El servicio opera bajo una membresía VIP exclusiva que cubre de forma integral las solicitudes de transporte de emergencia sin cargos por trayecto.",
+        seguridad:
+          "Garantizamos la seguridad mediante un riguroso proceso de validación de perfiles, además de seguimiento por telemetría satelital en tiempo real.",
+        registro:
+          "Para registrarte como transportador, un administrador debe otorgarte el rol correspondiente en la base de datos central.",
+        mascotas_grandes:
+          "¡Sí! Contamos con unidades móviles acondicionadas para perros de razas grandes y medianas con arneses de seguridad avanzados.",
+        horarios:
+          "Nuestra plataforma web y centro de comando están operando 24 horas al día, los 7 días de la semana.",
+        cancelar:
+          "Puedes cancelar cualquier solicitud pendiente directamente desde tu centro de comando antes de que el piloto acepte la misión.",
+        pago: "Gestionamos las membresías mediante sistemas seguros de validación de socios y credenciales digitales de élite.",
+      };
+
+      function responderPregunta(tipo) {
+        const chatMessages = document.getElementById("chat-messages");
+        const textosPreguntas = {
+          como_funciona: "¿Cómo funciona el servicio?",
+          costos: "¿Tiene algún costo por trayecto?",
+          seguridad: "¿Cómo garantizan la seguridad?",
+          registro: "¿Cómo me registro como transportador?",
+          mascotas_grandes: "¿Transportan mascotas grandes?",
+          horarios: "¿Cuáles son los horarios de atención?",
+          cancelar: "¿Puedo cancelar un viaje solicitado?",
+          pago: "¿Qué métodos de pago aceptan?",
+        };
+
+        const userMsg = document.createElement("div");
+        userMsg.className = "message user";
+        userMsg.innerText = textosPreguntas[tipo];
+        chatMessages.appendChild(userMsg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        const typingMsg = document.createElement("div");
+        typingMsg.className = "message bot";
+        typingMsg.id = "typing-indicator";
+        typingMsg.innerHTML =
+          '<i class="fa-solid fa-ellipsis fa-fade"></i> VetBot está procesando telemetría...';
+        chatMessages.appendChild(typingMsg);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        setTimeout(() => {
+          document.getElementById("typing-indicator").remove();
+          const botMsg = document.createElement("div");
+          botMsg.className = "message bot";
+          botMsg.innerText = respuestasFAQ[tipo];
+          chatMessages.appendChild(botMsg);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 800);
+      }
+
+      // 8. Motor de Partículas en Canvas con Conexiones Neuronales
+      const canvas = document.getElementById("particles-canvas");
+      const ctx = canvas.getContext("2d");
+
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+
+      const particles = [];
+      const count = 75;
+
+      for (let i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          radius: Math.random() * 2 + 1.2,
+          color: Math.random() > 0.5 ? "#43cea2" : "#00d2ff",
+          speedX: (Math.random() - 0.5) * 0.6,
+          speedY: (Math.random() - 0.5) * 0.6,
+        });
+      }
+
+      let mouseX = -1000;
+      let mouseY = -1000;
+      window.addEventListener("mousemove", (e) => {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
+
+      function animateParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        for (let i = 0; i < particles.length; i++) {
+          let p = particles[i];
+          p.x += p.speedX;
+          p.y += p.speedY;
+
+          if (p.x < 0) p.x = canvas.width;
+          if (p.x > canvas.width) p.x = 0;
+          if (p.y < 0) p.y = canvas.height;
+          if (p.y > canvas.height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+
+          let distX = mouseX - p.x;
+          let distY = mouseY - p.y;
+          let dist = Math.sqrt(distX * distX + distY * distY);
+          if (dist < 150) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(mouseX, mouseY);
+            ctx.strokeStyle = `rgba(67, 206, 162, ${1 - dist / 150})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+        requestAnimationFrame(animateParticles);
+      }
+      animateParticles();
+    </script>
+  </body>
+</html>

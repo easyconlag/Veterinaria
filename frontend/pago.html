@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Activación de Cuenta - Vet Logística</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        background-color: #030712;
+        color: white;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .pago-container {
+        background: #0f172a;
+        border: 1px solid rgba(67, 206, 162, 0.3);
+        padding: 40px;
+        border-radius: 20px;
+        width: 100%;
+        max-width: 450px;
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+      }
+      .logo {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-align: center;
+        margin-bottom: 20px;
+        background: linear-gradient(135deg, #43cea2, #00d2ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .input-group {
+        margin-bottom: 20px;
+      }
+      .input-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+      .input-group select,
+      .input-group input {
+        width: 100%;
+        padding: 12px;
+        background: #030712;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 10px;
+        color: white;
+        font-size: 1rem;
+        outline: none;
+      }
+      .btn-pagar {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 0 20px rgba(67, 206, 162, 0.3);
+      }
+      .btn-pagar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(67, 206, 162, 0.6);
+      }
+      .info-box {
+        background: rgba(67, 206, 162, 0.1);
+        border-left: 4px solid #43cea2;
+        padding: 12px;
+        font-size: 0.85rem;
+        color: #cbd5e1;
+        border-radius: 0 8px 8px 0;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="pago-container">
+      <div class="logo"><i class="fa-solid fa-paw"></i> Vet Logística</div>
+      <h3 style="text-align: center; margin-bottom: 15px; color: #f8fafc">
+        Activación de Membresía VIP
+      </h3>
+
+      <div class="info-box">
+        <i class="fa-solid fa-circle-info"></i> Para acceder a la plataforma y
+        solicitar transportes veterinarios, debes realizar el pago único de
+        activación de cuenta por <b>$29.900 COP</b>.
+      </div>
+
+      <form id="form-pago-suscripcion">
+        <div class="input-group">
+          <label>Método de Pago</label>
+          <select id="metodo-pago" required>
+            <option value="Tarjeta de Crédito">Tarjeta Débito / Crédito</option>
+            <option value="PSE">PSE (Pagos Seguros en Línea)</option>
+            <option value="Nequi">Nequi / DaviPlata</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>Número de Cuenta / Tarjeta (Simulador)</label>
+          <input
+            type="text"
+            id="numero-tarjeta"
+            placeholder="**** **** **** 1234"
+            required
+          />
+        </div>
+
+        <button type="submit" class="btn-pagar">
+          <i class="fa-solid fa-lock"></i> Pagar $29.900 y Activar Cuenta
+        </button>
+      </form>
+    </div>
+
+    <script>
+      document
+        .getElementById("form-pago-suscripcion")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          // Recuperar el id del usuario guardado temporalmente al registrarse o loguearse
+          const id_usuario = localStorage.getItem("id_usuario_actual");
+          const metodo_pago = document.getElementById("metodo-pago").value;
+          const tarjeta = document.getElementById("numero-tarjeta").value;
+
+          if (!id_usuario) {
+            alert(
+              "No se encontró la sesión del usuario. Por favor inicia sesión de nuevo.",
+            );
+            window.location.href = "auth.html";
+            return;
+          }
+
+          if (!tarjeta) {
+            alert("Por favor ingresa los datos de pago.");
+            return;
+          }
+
+          try {
+            const respuesta = await fetch(
+              "http://localhost:3000/pagar-suscripcion",
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  id_usuario: id_usuario,
+                  metodo_pago: metodo_pago,
+                  monto: 29900,
+                }),
+              },
+            );
+
+            const data = await respuesta.json();
+
+            if (respuesta.ok) {
+              alert(data.mensaje);
+              // Redirigir finalmente al mapa principal una vez pagado
+              window.location.href = "mapa.html";
+            } else {
+              alert(data.mensaje || "Error al procesar el pago.");
+            }
+          } catch (error) {
+            console.error(error);
+            alert("Error de conexión con el servidor de pagos.");
+          }
+        });
+    </script>
+  </body>
+</html>

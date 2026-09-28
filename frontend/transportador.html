@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexus Driver Command - Vet Logística VIP</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;500;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background-color: #020617;
+        color: #f8fafc;
+        font-family: "Inter", sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+      }
+
+      /* ================= HEADER GLASSMORPHISM ================= */
+      header {
+        height: 75px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 40px;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(25px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        z-index: 1000;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.7);
+      }
+      .logo {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.6rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: linear-gradient(135deg, #43cea2, #00d2ff);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: pulseNeon 2s infinite alternate;
+      }
+      @keyframes pulseNeon {
+        from {
+          text-shadow: 0 0 5px rgba(67, 206, 162, 0.2);
+        }
+        to {
+          text-shadow: 0 0 20px rgba(67, 206, 162, 0.8);
+        }
+      }
+
+      .badge-driver {
+        background: rgba(0, 210, 255, 0.15);
+        color: #00d2ff;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        border: 1px solid rgba(0, 210, 255, 0.4);
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+        font-family: "Orbitron", sans-serif;
+      }
+      .btn-volver {
+        background: rgba(255, 107, 107, 0.1);
+        color: #ff6b6b;
+        padding: 10px 24px;
+        border-radius: 30px;
+        text-decoration: none;
+        font-weight: 600;
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.4s;
+      }
+      .btn-volver:hover {
+        background: #ff6b6b;
+        color: white;
+        box-shadow: 0 0 25px rgba(255, 107, 107, 0.7);
+      }
+
+      /* ================= LAYOUT PRINCIPAL ================= */
+      .dashboard {
+        max-width: 1400px;
+        margin: 30px auto;
+        width: 100%;
+        padding: 0 25px;
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 30px;
+      }
+      @media (max-width: 1000px) {
+        .dashboard {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .panel-control {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      /* MÉTRICAS GRID */
+      .metricas-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+      .metrica-card {
+        background: rgba(15, 23, 42, 0.7);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        padding: 20px;
+        border-radius: 18px;
+        backdrop-filter: blur(15px);
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        transition: 0.3s;
+      }
+      .metrica-card:hover {
+        border-color: rgba(67, 206, 162, 0.4);
+        transform: translateY(-3px);
+      }
+      .metrica-card h4 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 1.8rem;
+        color: #43cea2;
+        font-weight: 700;
+        margin-bottom: 5px;
+        text-shadow: 0 0 10px rgba(67, 206, 162, 0.4);
+      }
+      .metrica-card p {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      /* VIAJES COLUMNA */
+      .viajes-columna {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+      }
+      .viaje-card {
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(67, 206, 162, 0.4);
+        padding: 25px;
+        border-radius: 20px;
+        backdrop-filter: blur(15px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+        position: relative;
+        overflow: hidden;
+        animation: slideInLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      @keyframes slideInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      .viaje-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, #43cea2, #00d2ff);
+        box-shadow: 0 0 15px #43cea2;
+      }
+
+      .viaje-info p {
+        margin-bottom: 10px;
+        color: #94a3b8;
+        font-size: 0.95rem;
+      }
+      .viaje-info strong {
+        color: #fff;
+        font-weight: 600;
+      }
+
+      /* ACCIONES */
+      .acciones-viaje {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+      .btn-ruta {
+        background: rgba(0, 210, 255, 0.15);
+        color: #00d2ff;
+        border: 1px solid rgba(0, 210, 255, 0.4);
+        padding: 10px 15px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        flex: 1;
+        justify-content: center;
+      }
+      .btn-ruta:hover {
+        background: #00d2ff;
+        color: #020617;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.6);
+      }
+
+      .btn-chat {
+        background: rgba(67, 206, 162, 0.15);
+        color: #43cea2;
+        border: 1px solid rgba(67, 206, 162, 0.4);
+        padding: 10px 15px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        flex: 1;
+        justify-content: center;
+      }
+      .btn-chat:hover {
+        background: #43cea2;
+        color: #020617;
+        box-shadow: 0 0 15px rgba(67, 206, 162, 0.6);
+      }
+
+      .btn-completar {
+        background: linear-gradient(135deg, #43cea2, #185a9d);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        flex: 1;
+        justify-content: center;
+        box-shadow: 0 4px 15px rgba(67, 206, 162, 0.3);
+      }
+      .btn-completar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(67, 206, 162, 0.6);
+      }
+
+      /* CHAT ACTIVO PANEL */
+      .chat-panel-driver {
+        background: rgba(15, 23, 42, 0.85);
+        border: 1px solid rgba(0, 210, 255, 0.3);
+        padding: 20px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+      }
+      #caja-mensajes-transp {
+        height: 150px;
+        background: rgba(2, 6, 23, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 12px;
+        overflow-y: auto;
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      /* CONTENEDOR MAPA & GPS OVERLAY */
+      .mapa-contenedor {
+        position: relative;
+        height: 620px;
+        width: 100%;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.8);
+      }
+      #map-transportador {
+        height: 100%;
+        width: 100%;
+        z-index: 1;
+      }
+
+      /* MODO OSCURO LEAFLET PARA PILOTO */
+      .leaflet-layer,
+      .leaflet-control-zoom-in,
+      .leaflet-control-zoom-out,
+      .leaflet-control-attribution {
+        filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+      }
+
+      .gps-overlay {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1000;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(67, 206, 162, 0.4);
+        padding: 14px 20px;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      }
+      .gps-overlay i {
+        color: #43cea2;
+        font-size: 1.4rem;
+        animation: pulseGps 2s infinite;
+      }
+      .gps-text h5 {
+        font-family: "Orbitron", sans-serif;
+        font-size: 0.9rem;
+        color: #fff;
+      }
+      .gps-text p {
+        font-size: 0.8rem;
+        color: #43cea2;
+        font-weight: 700;
+        margin-top: 2px;
+      }
+
+      @keyframes pulseGps {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+          text-shadow: 0 0 10px #43cea2;
+        }
+        50% {
+          opacity: 0.5;
+          transform: scale(1.15);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="logo">
+        <i class="fa-solid fa-satellite-dish"></i> VET LOGÍSTICA
+      </div>
+      <div style="display: flex; align-items: center; gap: 20px">
+        <span class="badge-driver"
+          ><i class="fa-solid fa-shield-halved"></i> PILOTO VIP
+          CERTIFICADO</span
+        >
+        <a href="auth.html" class="btn-volver" onclick="localStorage.clear()"
+          ><i class="fa-solid fa-right-from-bracket"></i> Salir</a
+        >
+      </div>
+    </header>
+
+    <div class="dashboard">
+      <div class="panel-control">
+        <h2
+          style="
+            font-family: &quot;Orbitron&quot;, sans-serif;
+            font-size: 1.4rem;
+            color: #f8fafc;
+            margin-bottom: 5px;
+          "
+        >
+          <i class="fa-solid fa-gauge-high" style="color: #00d2ff"></i> Panel
+          Operativo de Misión
+        </h2>
+
+        <div class="metricas-grid">
+          <div class="metrica-card">
+            <h4 id="stat-viajes">0</h4>
+            <p>Trayectos Activos</p>
+          </div>
+          <div class="metrica-card">
+            <h4 style="color: #00d2ff">48 km/h</h4>
+            <p>Velocidad Óptima</p>
+          </div>
+        </div>
+
+        <!-- Panel de Chat Activo para el Transportador -->
+        <div class="chat-panel-driver">
+          <h3
+            style="
+              color: #00d2ff;
+              margin-bottom: 12px;
+              font-size: 1rem;
+              font-family: &quot;Orbitron&quot;, sans-serif;
+            "
+          >
+            <i class="fa-solid fa-walkie-talkie"></i> Canal Táctico con Cliente
+          </h3>
+          <div id="caja-mensajes-transp">
+            <p
+              style="
+                color: #64748b;
+                text-align: center;
+                margin-top: 50px;
+                font-family: monospace;
+              "
+            >
+              Selecciona "Abrir Chat" en un viaje asignado
+            </p>
+          </div>
+          <div style="display: flex; gap: 10px">
+            <input
+              type="text"
+              id="input-msj-transp"
+              placeholder="Transmite un reporte..."
+              style="
+                flex: 1;
+                padding: 12px;
+                background: rgba(2, 6, 23, 0.8);
+                border: 1px solid rgba(255, 255, 255, 0.15);
+                border-radius: 10px;
+                color: white;
+                font-size: 0.9rem;
+                outline: none;
+              "
+            />
+            <button
+              type="button"
+              onclick="enviarMensajeTransp()"
+              style="
+                background: #00d2ff;
+                border: none;
+                padding: 0 18px;
+                border-radius: 10px;
+                cursor: pointer;
+                box-shadow: 0 0 15px rgba(0, 210, 255, 0.4);
+              "
+            >
+              <i
+                class="fa-solid fa-paper-plane"
+                style="color: #020617; font-size: 1.1rem"
+              ></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="viajes-columna" id="contenedor-viajes">
+          <p style="color: #94a3b8; font-family: monospace">
+            Sincronizando satélite con la red central...
+          </p>
+        </div>
+      </div>
+
+      <div class="mapa-contenedor">
+        <div class="gps-overlay">
+          <i class="fa-solid fa-radar"></i>
+          <div class="gps-text">
+            <h5>TELEMETRÍA SATELITAL</h5>
+            <p id="estatus-satelite">En espera de ruta táctica...</p>
+          </div>
+        </div>
+        <div id="map-transportador"></div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+
+    <script>
+      // 1. Inicialización del Mapa del Conductor con Estilo Táctico
+      const mapTransp = L.map("map-transportador", {
+        zoomControl: false,
+      }).setView([4.73245, -74.26419], 14);
+      L.control.zoom({ position: "bottomleft" }).addTo(mapTransp);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "© OpenStreetMap contributors",
+      }).addTo(mapTransp);
+
+      let controlRutaActual = null;
+      let marcadorVehiculo = null;
+
+      // Síntesis de Voz Artificial para Notificar al Piloto
+      function anunciarVoz(texto) {
+        if ("speechSynthesis" in window) {
+          let utterance = new SpeechSynthesisUtterance(texto);
+          utterance.lang = "es-ES";
+          utterance.rate = 1.0;
+          window.speechSynthesis.speak(utterance);
+        }
+      }
+
+      async function cargarViajesTransportador() {
+        const idTransportador = localStorage.getItem("id_usuario_actual");
+        const contenedor = document.getElementById("contenedor-viajes");
+        const statViajes = document.getElementById("stat-viajes");
+
+        if (!idTransportador) {
+          window.location.href = "auth.html";
+          return;
+        }
+
+        try {
+          const respuesta = await fetch(
+            `http://localhost:3000/transportador/${idTransportador}/viajes`,
+          );
+          const viajes = await respuesta.json();
+
+          statViajes.innerText = viajes.length;
+
+          if (viajes.length === 0) {
+            contenedor.innerHTML =
+              '<div class="viaje-card"><p style="color: #94a3b8; text-align:center; font-family:monospace;">Sin misiones asignadas. Unidad en stand-by.</p></div>';
+            return;
+          }
+
+          contenedor.innerHTML = "";
+          viajes.forEach((v) => {
+            contenedor.innerHTML += `
+                <div class="viaje-card">
+                    <div class="viaje-info">
+                        <p><strong>Sujeto / Cliente:</strong> ${v.cliente}</p>
+                        <p><strong>Punto de Extracción:</strong> ${v.origen}</p>
+                        <p><strong>Destino Médico:</strong> ${v.veterinaria_destino}</p>
+                        <p><strong>Carga / Mascota:</strong> ${v.detalles_mascota}</p>
+                    </div>
+                    <div class="acciones-viaje">
+                        <button class="btn-ruta" onclick="trazarRutaConGPSReal('${v.origen}', '${v.veterinaria_destino}')">
+                            <i class="fa-solid fa-route"></i> Trazar GPS
+                        </button>
+                        <button class="btn-chat" onclick="iniciarChatTransportador(${v.id_solicitud})">
+                            <i class="fa-solid fa-comments"></i> Canal Chat
+                        </button>
+                        <button class="btn-completar" onclick="completarViaje(${v.id_solicitud})">
+                            <i class="fa-solid fa-check-double"></i> Finalizar Misión
+                        </button>
+                    </div>
+                </div>
+            `;
+          });
+        } catch (error) {
+          contenedor.innerHTML =
+            '<p style="color: #ff6b6b;">Error crítico de sincronización con servidor.</p>';
+        }
+      }
+
+      function trazarRutaConGPSReal(origenClienteTexto, destinoTexto) {
+        let destinoCoords = [4.735, -74.261];
+
+        if (destinoTexto.includes("Animalia")) destinoCoords = [4.728, -74.267];
+        if (destinoTexto.includes("TotalVet"))
+          destinoCoords = [4.7392, -74.2585];
+        if (destinoTexto.includes("VetExpress"))
+          destinoCoords = [4.7255, -74.272];
+        if (destinoTexto.includes("PetCare")) destinoCoords = [4.741, -74.265];
+
+        if (!navigator.geolocation) {
+          alert("GPS no disponible en este dispositivo.");
+          return;
+        }
+
+        document.getElementById("estatus-satelite").innerText =
+          "Sincronizando coordenadas satelitales...";
+        anunciarVoz(
+          "Calculando ruta táctica de interceptación hacia el objetivo.",
+        );
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const latConductor = position.coords.latitude;
+            const lngConductor = position.coords.longitude;
+
+            if (controlRutaActual) mapTransp.removeControl(controlRutaActual);
+            if (marcadorVehiculo) mapTransp.removeLayer(marcadorVehiculo);
+
+            const iconoAuto = L.divIcon({
+              html: '<div style="background:#00d2ff; width:32px; height:32px; border-radius:50%; border:3px solid white; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px #00d2ff; color:#020617; font-size:13px;"><i class="fa-solid fa-truck-medical"></i></div>',
+              className: "custom-car-icon",
+            });
+
+            marcadorVehiculo = L.marker([latConductor, lngConductor], {
+              icon: iconoAuto,
+            })
+              .addTo(mapTransp)
+              .bindPopup(
+                "<b>Unidad de Rescate Activa</b><br>Posición de partida",
+              )
+              .openPopup();
+
+            controlRutaActual = L.Routing.control({
+              waypoints: [
+                L.latLng(latConductor, lngConductor),
+                L.latLng(destinoCoords[0], destinoCoords[1]),
+              ],
+              routeWhileDragging: false,
+              language: "es",
+              lineOptions: {
+                styles: [{ color: "#00d2ff", opacity: 0.9, weight: 6 }],
+              },
+              addWaypoints: false,
+              draggableWaypoints: false,
+              fitSelectedRoutes: true,
+              show: true,
+            }).addTo(mapTransp);
+
+            document.getElementById("estatus-satelite").innerText =
+              "Ruta satelital establecida 🟢";
+          },
+          (error) => {
+            alert("Error al capturar posición GPS.");
+            document.getElementById("estatus-satelite").innerText =
+              "Fallo de señal GPS 🔴";
+          },
+          { enableHighAccuracy: true },
+        );
+      }
+
+      async function completarViaje(idSolicitud) {
+        try {
+          const respuesta = await fetch(
+            `http://localhost:3000/viaje/${idSolicitud}/completar`,
+            { method: "PUT" },
+          );
+          const data = await respuesta.json();
+          alert(data.mensaje);
+          anunciarVoz("Misión completada con éxito. Unidades libres.");
+
+          if (controlRutaActual) mapTransp.removeControl(controlRutaActual);
+          if (marcadorVehiculo) mapTransp.removeLayer(marcadorVehiculo);
+          document.getElementById("estatus-satelite").innerText =
+            "En espera de ruta...";
+
+          cargarViajesTransportador();
+        } catch (error) {
+          alert("Error al finalizar misión.");
+        }
+      }
+
+      // CHAT DEL TRANSPORTADOR
+      let intervaloChatTransp = null;
+      let solicitudActualTransp = null;
+
+      function iniciarChatTransportador(idSolicitud) {
+        solicitudActualTransp = idSolicitud;
+        if (intervaloChatTransp) clearInterval(intervaloChatTransp);
+        intervaloChatTransp = setInterval(sincronizarChatTransp, 1500);
+        anunciarVoz("Canal de radio abierto con el cliente.");
+      }
+
+      async function sincronizarChatTransp() {
+        if (!solicitudActualTransp) return;
+        try {
+          const res = await fetch(
+            `http://localhost:3000/chat/${solicitudActualTransp}`,
+          );
+          const mensajes = await res.json();
+          const caja = document.getElementById("caja-mensajes-transp");
+
+          caja.innerHTML = "";
+          if (mensajes.length === 0) {
+            caja.innerHTML =
+              '<p style="color: #64748b; text-align: center; margin-top: 40px; font-family:monospace;">Canal libre. Esperando transmisión...</p>';
+            return;
+          }
+
+          mensajes.forEach((m) => {
+            const esMio = m.remitente === "Transportador";
+            const align = esMio
+              ? "align-self: flex-end; background: #00d2ff; color: #020617;"
+              : "align-self: flex-start; background: #1e293b; color: white;";
+            caja.innerHTML += `
+                <div style="${align} padding: 8px 12px; border-radius: 10px; max-width: 85%; word-break: break-word;">
+                    <div style="font-size: 0.7rem; opacity: 0.8; margin-bottom: 2px;">${m.remitente} • ${m.hora}</div>
+                    <div><b>${m.mensaje}</b></div>
+                </div>
+            `;
+          });
+          caja.scrollTop = caja.scrollHeight;
+        } catch (e) {
+          console.error("Error sincronizando chat");
+        }
+      }
+
+      async function enviarMensajeTransp() {
+        const input = document.getElementById("input-msj-transp");
+        if (!input.value || !solicitudActualTransp) {
+          alert("Primero selecciona 'Canal Chat' en una misión activa.");
+          return;
+        }
+
+        await fetch("http://localhost:3000/chat/enviar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_solicitud: solicitudActualTransp,
+            remitente: "Transportador",
+            mensaje: input.value,
+          }),
+        });
+        input.value = "";
+        sincronizarChatTransp();
+      }
+
+      cargarViajesTransportador();
+    </script>
+  </body>
+</html>
